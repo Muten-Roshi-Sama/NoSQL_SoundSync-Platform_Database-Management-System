@@ -1,0 +1,80 @@
+[
+  {
+    "artist_id": "A1",
+    "stage_name": "Electro Pulse",
+    "real_name": "Marcus Chen",
+    "biography": "Electronic music producer known for fusion of synthwave and modern beats",
+    "genres": ["Electronic", "Synthwave"],
+    "albums": ["AL1", "AL2"],
+    "upcoming_concerts": [
+      {
+        "concert_id": "C1",
+        "name": "Neon Dreams Tour",
+        "date": "2024-03-15",
+        "venue": "Electric Palace"
+      }
+    ],
+    "total_followers": 125000
+  },
+  {
+    "artist_id": "A2",
+    "stage_name": "Jazz Mirage",
+    "real_name": "Elena Rodriguez",
+    "biography": "Saxophonist and band leader blending traditional jazz with Latin influences",
+    "genres": ["Jazz", "Latin Jazz"],
+    "albums": ["AL3"],
+    "upcoming_concerts": [
+      {
+        "concert_id": "C2",
+        "name": "Blue Note Sessions",
+        "date": "2024-03-20",
+        "venue": "The Jazz Cellar"
+      }
+    ],
+    "total_followers": 89000
+  },
+  {
+    "artist_id": "A3",
+    "stage_name": "Luna Shadows",
+    "real_name": "Chloe Bennett",
+    "biography": "Indie folk singer-songwriter known for haunting vocals and poetic lyrics",
+    "genres": ["Indie Folk", "Singer-Songwriter"],
+    "albums": ["AL4"],
+    "upcoming_concerts": [],
+    "total_followers": 45600
+  },
+  {
+    "artist_id": "A4",
+    "stage_name": "Metro Beats",
+    "real_name": "James Wilson",
+    "biography": "Hip-hop producer and rapper from Chicago's underground scene",
+    "genres": ["Hip-Hop", "Rap"],
+    "albums": ["AL5"],
+    "upcoming_concerts": [
+      {
+        "concert_id": "C3",
+        "name": "Urban Flow Festival",
+        "date": "2024-04-05",
+        "venue": "Metro Arena"
+      }
+    ],
+    "total_followers": 210000
+  },
+  {
+    "artist_id": "A5",
+    "stage_name": "Velvet Thunder",
+    "real_name": "Sarah Johnson & Tom Miles",
+    "biography": "Rock duo reviving classic rock sounds with modern energy",
+    "genres": ["Rock", "Classic Rock"],
+    "albums": ["AL6"],
+    "upcoming_concerts": [
+      {
+        "concert_id": "C4",
+        "name": "Retro Rock Revival",
+        "date": "2024-03-25",
+        "venue": "The Rock Garden"
+      }
+    ],
+    "total_followers": 178000
+  }
+]
