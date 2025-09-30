@@ -1,18 +1,17 @@
-# Dockerfile
 FROM python:3.10-slim
 
-# Set working directory inside container
-WORKDIR /app
+# définir le dossier de travail
+WORKDIR /app_django_soundsync
 
-# Copy requirements first (for caching)
+# installer dépendances
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the app folder into container
-COPY app/ /app
+# copier le code
+COPY . .
 
-# Expose Flask port
-EXPOSE 5000
+# exposer port
+EXPOSE 8000
 
-# Default command to run Flask
-CMD ["python", "app.py"]
+# commande par défaut
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

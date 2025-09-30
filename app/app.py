@@ -10,10 +10,10 @@ ROUTE = 5000
 
 # MongoDB connection
 client = MongoClient("mongodb://mongo:27017/")
-db = client["storeDB"]
+db = client["SoundSyncDB"]
 
 
-# Collections
+# Collections 
 users = db["users"]
 artists = db["artists"]
 
