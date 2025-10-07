@@ -123,3 +123,12 @@ pip install -r requirements.txt
    ```
 
 ---
+
+## Django utilisation doc
+
+1. **Initialize Django project**
+   ```Django-admin startproject <name>```
+
+2. **Adding new apps to the project**
+   ```python manage.py startapp <name>```
+   Then go to settings.py and add your app's name in the INSTALLED_APPS list.
