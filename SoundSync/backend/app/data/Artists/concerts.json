@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "concert1",
+    "artist_id": "artist1",
+    "title": "Live at the Blue Note",
+    "date": "2025-12-01T20:00:00Z",
+    "location": "Blue Note Jazz Club, NY"
+  },
+  {
+    "_id": "concert2",
+    "artist_id": "artist2",
+    "title": "Synthwave Night",
+    "date": "2025-12-15T21:00:00Z",
+    "location": "Electric Dreams Arena, LA"
+  }
+]
