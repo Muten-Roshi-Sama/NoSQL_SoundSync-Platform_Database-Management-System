@@ -1,134 +1,167 @@
 
-## TODO: Update readme.md
+# 🎵 Soundsync
 
-# MongoDB Projects
-
-MongoDB + Docker implementation lab with sample data and scripts for learning and experimentation.
-
-### Full file structure:
-```
-mongoDB_project/
-├── CRUD_Indexing_Aggregation/
-└── storeApi/
-```
-- **CRUD_Indexing_Aggregation**: MongoDB exercises - basic operations, indexing, aggregation pipelines.
-- **Store API**: Full Flask REST API with MongoDB - CRUD operations for a game store.
-
-Both use MongoDB in Docker containers.
+**Soundsync** est une application web de streaming musical inspirée de Spotify.  
+Elle permet aux utilisateurs d’écouter des morceaux, créer des playlists, suivre des artistes et découvrir de nouveaux genres.
 
 ---
 
-## CRUD, Indexation & Aggregation Project
+## 🧱 Technologies
 
-### Project Structure
-
-```
-CRUD_Indexing_Aggregation/
-├── docker-compose.yml
-├── data/                         # Raw data files (JSON, CSV)
-│   └── movies.json
-├── exercises/                    # Python scripts
-│   ├── db_connect.py            # DB functions: get_db, showDB, cleanup
-│   ├── importData.py            # CALLABLE: populate DB from movies.json
-│   ├── showDB.py                # CALLABLE: show all collections contents
-│   ├── cleanup.py               # CALLABLE: drop all collections
-│   ├── x1.py                    # All $ operators implementation examples
-│   ├── x2.py                    # Indexation
-│   ├── x3.py                    # Pipeline Aggregation
-│   └── requirements.txt         # pymongo, dnspython, requests, ...
-└── js_scripts/
-```
-
-**Note:**  
-- CALLABLE = scripts you can run from terminal to interact with DB  
-- Just run the Python files to see what they do :
-
-**Quick start:**
-```bash
-docker-compose up -d
-python exercises/importData.py    # Populate the DB
-python exercises/showDB.py        # Check what's in there
-```
-
----
----
-
-## Store API Project
-
-### Structure
-
-```
-storeApi/
-├── /venv
-├── app/
-│   ├── app.py                    # Main Flask app
-│   ├── test_routes.py            # Testing script
-│   ├── data/
-│   │   ├── games.json
-│   │   └── clients.json
-├── Dockerfile
-├── docker-compose.yml
-└── requirements.txt
-```
-
-### How to run this thing:
-
-**Launch the API:**
-```bash
-docker compose up -d         # or docker build if you changed stuff
-```
-This starts the Flask server automatically.
-
-**To test/interact:**
-```bash
-docker exec -it mypython bash    # Get into the container
-python test_routes.py           # Run tests in another terminal
-```
-**Pro tip:** Comment/uncomment stuff in `test_routes.py` depending on what you want to test.
-
-### Local dev setup (if you don't wanna use Docker):
-
-**Setup venv (Open PowerShell as admin):**
-```bash
-cd "C:\Users\user\Desktop\..."    # Wherever you put this
-cd storeApi
-python -m venv venv
-```
-
-**Activate venv:**
-```bash
-.\venv\Scripts\Activate.ps1
-```
-
-**Install what you need:**
-```bash
-pip install -r requirements.txt
-```
+- **Backend** : [FastAPI](https://fastapi.tiangolo.com/)  
+- **Base de données principale** : [MongoDB](https://www.mongodb.com/)  
+- **Cache / files d’attente** : [Redis](https://redis.io/)  
+- **Frontend** : [React (Vite)](https://vitejs.dev/)  
+- **Containerisation** : [Docker Compose](https://docs.docker.com/compose/)
 
 ---
 
-## Docker Installation on Windows (if you need it):
+## 📂 Structure du projet
 
-1. **Install WSL:**
-   ```bash
-   wsl --install    # Run in admin PowerShell
-   ```
-   Then restart your PC.
+```
 
-2. **Download Docker Desktop** and install it.
+soundsync/
+├─ backend/
+│  ├─ app/
+│  │  ├─ __init__.py
+│  │  ├─ main.py                 # uvicorn app.main:app
+│  │  ├─ core/
+│  │  │  ├─ settings.py          # pydantic Settings (env)
+│  │  │  └─ events.py            # startup/shutdown events (db connect)
+│  │  ├─ db/
+│  │  │  ├─ client.py            # PyMongo client management
+│  │  │  └─ indexes.py
+│  │  ├─ api/
+│  │  │  ├─ v1/
+│  │  │  │  ├─ __init__.py
+│  │  │  │  ├─ users.py
+│  │  │  │  ├─ tracks.py
+│  │  │  │  └─ playlists.py
+│  │  ├─ models/                 # Pydantic schemas (requests/responses)
+│  │  │  ├─ user.py
+│  │  │  ├─ track.py
+│  │  │  └─ playlist.py
+│  │  ├─ services/               # logique métier, accès DB → réutilisable
+│  │  │  ├─ user_service.py
+│  │  │  ├─ track_service.py
+│  │  │  └─ playlist_service.py
+│  │  ├─ utils/
+│  │  │  ├─ redis_cache.py       # helpers Redis (cache, counters)
+│  │  │  └─ auth.py              # JWT helpers, oauth utilities
+│  │  └─ tests/
+│  │     └─ ...
+│  ├─ Dockerfile
+│  └─ requirements.txt
+├─ frontend/
+│  └─ (app React stub / create-react-app or Vite)
+├─ docker-compose.yml
+└─ README.md
 
-3. **Run your projects:**
-   ```bash
-   docker-compose up -d    # In the folder with docker-compose.yml
-   ```
+```
+
 
 ---
 
-## Django utilisation doc
+## ⚙️ Installation et lancement
 
-1. **Initialize Django project**
-   ```Django-admin startproject <name>```
+### 🐳 Prérequis
 
-2. **Adding new apps to the project**
-   ```python manage.py startapp <name>```
-   Then go to settings.py and add your app's name in the INSTALLED_APPS list.
+- [Docker](https://www.docker.com/) installé  
+- [Docker Compose](https://docs.docker.com/compose/install/) installé  
+
+Aucune autre installation locale n’est nécessaire (pas besoin de Node ou Python en dehors de Docker).
+
+---
+
+### 🚀 Démarrage du projet
+
+Depuis la racine du projet :
+
+```bash
+docker compose up --build
+````
+
+Docker va :
+
+* construire les images du **backend FastAPI** et du **frontend React**,
+* lancer **MongoDB** et **Redis**,
+* relier tous les services dans un réseau interne.
+
+---
+
+## 🌐 Accès à l’application
+
+| Service               | URL d’accès depuis le navigateur               | Description                                             |
+| --------------------- | ---------------------------------------------- | ------------------------------------------------------- |
+| **Frontend (React)**  | [http://localhost:3000](http://localhost:3000) | Interface web principale                                |
+| **Backend (FastAPI)** | [http://localhost:8000](http://localhost:8000) | API Soundsync (Swagger UI disponible)                   |
+| **MongoDB**           | `mongodb://localhost:27017`                    | Base de données (non accessible via navigateur)         |
+| **Redis**             | `redis://localhost:6379`                       | Cache / files d’attente (non accessible via navigateur) |
+
+---
+
+## 🧪 Test de la communication frontend ↔ backend
+
+Une fois Docker lancé :
+
+* Va sur [http://localhost:3000](http://localhost:3000)
+* Tu devrais voir :
+
+  ```
+  Soundsync Frontend
+  API Status: Welcome to the Soundsync API! DB connected.
+  ```
+
+Cela confirme que le **frontend communique bien avec le backend**.
+
+---
+
+## 🧰 Commandes utiles
+
+### Arrêter les conteneurs :
+
+```bash
+docker compose down
+```
+
+### Rebuild complet :
+
+```bash
+docker compose up --build
+```
+
+### Voir les logs :
+
+```bash
+docker compose logs -f backend
+docker compose logs -f frontend
+```
+
+---
+
+## 📘 Notes techniques
+
+* Le **frontend** accède à l’API via `http://localhost:8000` (le port exposé).
+* Le **CORS** est activé dans FastAPI pour autoriser `http://localhost:3000`.
+* En production, cette configuration sera ajustée pour pointer vers le domaine final.
+
+---
+
+## 🚧 Prochaines étapes
+
+* [ ] Définir le modèle utilisateur (User, Artist, Playlist, etc.)
+* [ ] Ajouter un système d’authentification (JWT)
+* [ ] Implémenter la gestion des fichiers audio (upload/stream)
+* [ ] Créer une interface utilisateur complète (Playlists, Player, etc.)
+
+---
+
+🖋️ **Auteur :** [Ton nom ici]
+📅 **Version :** 0.1.0
+
+```
+
+---
+
+Souhaites-tu que je t’ajoute dans ce README la partie *“développement sans Docker”* (pour lancer backend et frontend séparément avec `uvicorn` et `npm run dev` quand tu veux coder plus vite) ?
+```
