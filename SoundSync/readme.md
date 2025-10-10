@@ -59,6 +59,58 @@ soundsync/
 
 ```
 
+Parfait ✅ — on va poser une **structure claire et extensible** pour ton backend FastAPI.
+C’est une architecture **modulaire**, **propre** et **scalable**, inspirée des bonnes pratiques du monde pro (ex : FastAPI + MongoDB + Redis).
+
+---
+
+## 📂 Structure complète du backend
+
+```
+backend/
+│
+├── app/
+│   ├── api/
+│   │   └── v1/
+│   │       ├── __init__.py
+│   │       ├── health.py           # Endpoint de test
+│   │       └── users.py            # Exemple de route (users)
+│   │
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── config.py               # Configuration générale (env vars)
+│   │   └── events.py               # Connexions à Mongo et Redis
+│   │
+│   ├── db/
+│   │   ├── __init__.py
+│   │   ├── mongo.py                # Connexion MongoDB
+│   │   └── redis_client.py         # Connexion Redis
+│   │
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── user_model.py           # Modèle Pydantic pour User
+│   │
+│   ├── services/
+│   │   ├── __init__.py
+│   │   └── user_service.py         # Logique métier (users)
+│   │
+│   ├── main.py                     # Point d’entrée FastAPI
+│   └── __init__.py
+│
+└── requirements.txt
+```
+
+---
+
+## 🧠 Explication des dossiers
+
+| Dossier       | Rôle                                                                                                       | Exemple                              |
+| ------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| **api/**      | Routes de l’API (v1, v2, etc.). Contient les endpoints que les clients (frontend, mobile, etc.) appellent. | `/api/v1/users`, `/api/v1/health`    |
+| **core/**     | Fichiers centraux : configuration, événements de démarrage, variables d’environnement.                     | Connexion à Mongo/Redis au lancement |
+| **db/**       | Gestion directe des bases de données et des connexions.                                                    | Mongo client, Redis client           |
+| **models/**   | Définitions des schémas Pydantic et/ou ORM.                                                                | `User`, `Playlist`, `Song`, etc.     |
+| **services/** | Logique métier : fonctions de traitement, appels DB, validations.                                          | Création utilisateur, login, etc.    |
 
 ---
 
@@ -156,12 +208,4 @@ docker compose logs -f frontend
 
 ---
 
-🖋️ **Auteur :** [Ton nom ici]
-📅 **Version :** 0.1.0
-
-```
-
----
-
-Souhaites-tu que je t’ajoute dans ce README la partie *“développement sans Docker”* (pour lancer backend et frontend séparément avec `uvicorn` et `npm run dev` quand tu veux coder plus vite) ?
-```
+🖋️ **Auteur :** Valatras
