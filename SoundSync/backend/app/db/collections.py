@@ -1,7 +1,6 @@
-# exercises/db_connect.py
-from pymongo import MongoClient
-import pprint
-import json, os
+# db/collections.py
+# import pprint
+# import json, os
 import app.core.events as events
 
 MC = events.mongo_client
