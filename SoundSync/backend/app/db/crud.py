@@ -2,27 +2,29 @@
 
 # from flask import jsonify
 from app.db.collections import *
-import app.core.events as events
+from app.db.mongo import get_mongo_database
+from app.db.redis import get_redis_client
+import json
 
-MC = events.mongo_client
-REDIS = events.redis_client
+MC = get_mongo_database()
+REDIS = get_redis_client()
 
-DEBUG_CRUD = true
+DEBUG_CRUD = True
 
 # ------- Init DB with sample data --------
 PATHS = {
     # --- Artists  ---
-    "ARTISTS": "data/Artists/artists.json",
-    "ALBUMS" : "data/Artists/albums.json",
-    "TRACKS" : "data/Artists/tracks.json",
-    "CONCERTS" : "data/Artists/concerts.json",
-    "GENRES" : "data/Artists/genres.json",
+    "ARTISTS": "app/data/Artists/artists.json",
+    "ALBUMS" : "app/data/Artists/albums.json",
+    "TRACKS" : "app/data/Artists/tracks.json",
+    "CONCERTS" : "app/data/Artists/concerts.json",
+    "GENRES" : "app/data/Artists/genres.json",
     # --- Users ----
-    "USERS" : "data/Users/users.json",
-    "LIKES" : "data/Users/likes.json",
-    "COMMENTS" : "data/Users/comments.json",
-    "PLAYLISTS" : "data/Users/playlists.json",
-    "SUBSCRIPTIONS" : "data/Users/subscriptions.json",
+    "USERS" : "app/data/Users/users.json",
+    "LIKES" : "app/data/Users/likes.json",
+    "COMMENTS" : "app/data/Users/comments.json",
+    "PLAYLISTS" : "app/data/Users/playlists.json",
+    "SUBSCRIPTIONS" : "app/data/Users/subscriptions.json",
     }
 
 def init_database(action):
@@ -52,60 +54,60 @@ def init_database(action):
 #*------------CRUD-----------
 # 1. CRUD (Create, Read, Update, Delete) operations
 
-def create_instance(collection, data):
-    """ Add instance to collection. Dynamically checks if provided data matches fields into already existing instances.
-        Expects collection name to be a string.
-    """
-    if not collection_exists(collection): return print(f"Collection {collection} not found..")
+# def create_instance(collection, data):
+#     """ Add instance to collection. Dynamically checks if provided data matches fields into already existing instances.
+#         Expects collection name to be a string.
+#     """
+#     if not collection_exists(collection): return print(f"Collection {collection} not found..")
 
-    # Find collection
-    coll = MC[collection.lower()]
-    data = data.get_json()
+#     # Find collection
+#     coll = MC[collection.lower()]
+#     data = data.get_json()
 
-    # Get ALL fields that already exist in this collection
-    available_fields = get_collection_fields(coll)
+#     # Get ALL fields that already exist in this collection
+#     available_fields = get_collection_fields(coll)
 
-    if not available_fields:
-            # If collection is empty, we can't determine fields - accept anything
-            result = coll.insert_one(data)
-            print("Item added successfully to {collection} collection. (Collection was empty, so any fields accepted.)")
-            # REDIS: Invalidate list caches and optionally cache the new item
-                # new_id = str(result.inserted_id)
-                # redis_cache.delete_pattern(f"{collection}:list*")
-                # redis_cache.set_json(redis_cache.make_id_key(collection, new_id), {**new_data, "_id": new_id})
-            return
-    else :
-        # Validate that at least some known fields are provided
-        provided_fields = set(data.keys())
-        known_fields = set(available_fields)
-        
-        # Check if any provided fields match the collection's known fields
-        matching_fields = provided_fields.intersection(known_fields)
-        
-        if not matching_fields:
-            print(f"[create_instance] No matching fields found for {collection} collection.")
-            print(f"available_fields: {available_fields}")
-            print(f"provided_fields: {provided_fields}")
-            return
-        
-        # Insert into the correct collection
-        result = coll.insert_one(data)
-        
-        # REDIS: Invalidate list caches and cache new item (works for all collections)
-            # new_id = str(result.inserted_id)
-            # redis_cache.delete_pattern(f"{collection}:list*")
-            # redis_cache.set_json(redis_cache.make_id_key(collection, new_id), {**new_data, "_id": new_id})
-    return
+#     if not available_fields:
+#             # If collection is empty, we can't determine fields - accept anything
+#             result = coll.insert_one(data)
+#             print("Item added successfully to {collection} collection. (Collection was empty, so any fields accepted.)")
+#             # REDIS: Invalidate list caches and optionally cache the new item
+#                 # new_id = str(result.inserted_id)
+#                 # redis_cache.delete_pattern(f"{collection}:list*")
+#                 # redis_cache.set_json(redis_cache.make_id_key(collection, new_id), {**new_data, "_id": new_id})
+#             return
+#     else :
+#         # Validate that at least some known fields are provided
+#         provided_fields = set(data.keys())
+#         known_fields = set(available_fields)
+    
+#         # Check if any provided fields match the collection's known fields
+#         matching_fields = provided_fields.intersection(known_fields)
+    
+#         if not matching_fields:
+#             print(f"[create_instance] No matching fields found for {collection} collection.")
+#             print(f"available_fields: {available_fields}")
+#             print(f"provided_fields: {provided_fields}")
+#             return
+    
+#         # Insert into the correct collection
+#         result = coll.insert_one(data)
+    
+#         # REDIS: Invalidate list caches and cache new item (works for all collections)
+#             # new_id = str(result.inserted_id)
+#             # redis_cache.delete_pattern(f"{collection}:list*")
+#             # redis_cache.set_json(redis_cache.make_id_key(collection, new_id), {**new_data, "_id": new_id})
+#     return
 
 
-def read_instance(collection, lookup_value):
-    pass
+# def read_instance(collection, lookup_value):
+#     pass
 
-def update_instance_by_field(collection, field):
-    pass
+# def update_instance_by_field(collection, field):
+#     pass
 
-def delete_instance(collection, identifier):
-    pass
+# def delete_instance(collection, identifier):
+#     pass
 
 
 
@@ -130,27 +132,27 @@ def clean_collection(collection, print_debug=True):
 
 
 
-def collection_exists(collection_name):
-    """Check if a collection exists in the database."""
-    return collection_name in MC.list_collection_names()
+# def collection_exists(collection_name):
+#     """Check if a collection exists in the database."""
+#     return collection_name in MC.list_collection_names()
 
-def get_collection_fields(collection_name):
-    """Get ALL field names from existing documents in the collection"""
-    try:
-        collection = MC[collection_name]
+# def get_collection_fields(collection_name):
+#     """Get ALL field names from existing documents in the collection"""
+#     try:
+#         collection = MC[collection_name]
         
-        # Get the first document to analyze its structure
-        sample_doc = collection.find_one()
+#         # Get the first document to analyze its structure
+#         sample_doc = collection.find_one()
         
-        if not sample_doc:
-            # If collection is empty, return empty list or basic fields
-            return []  # or return ['name', 'type'] if you want defaults
+#         if not sample_doc:
+#             # If collection is empty, return empty list or basic fields
+#             return []  # or return ['name', 'type'] if you want defaults
         
-        # Return all field names except MongoDB internal fields
-        all_fields = [key for key in sample_doc.keys() if key not in ['_id', '__v']]
-        return all_fields
+#         # Return all field names except MongoDB internal fields
+#         all_fields = [key for key in sample_doc.keys() if key not in ['_id', '__v']]
+#         return all_fields
         
-    except Exception as e:
-        print(f"Error analyzing collection {collection_name}: {e}")
-        return []  # Return empty list on error
+#     except Exception as e:
+#         print(f"Error analyzing collection {collection_name}: {e}")
+#         return []  # Return empty list on error
 

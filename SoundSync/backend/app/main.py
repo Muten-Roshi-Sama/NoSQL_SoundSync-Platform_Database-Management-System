@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.core import events
-from app.api.v1 import health
+from app.api.v1 import health, init_db
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -33,3 +33,4 @@ def read_root():
 
 
 app.include_router(health.router, prefix="/api", tags=["health"])
+app.include_router(init_db.router, prefix="/api", tags=["init_db"])

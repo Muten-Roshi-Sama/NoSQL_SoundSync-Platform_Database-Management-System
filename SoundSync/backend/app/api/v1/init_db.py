@@ -1,12 +1,13 @@
 
-import db.crud 
+import app.db.crud as crud
+from fastapi import APIRouter
+
+router = APIRouter()
 
 
-
-
-app.route("/init_db")
+@router.get("/init_db")
 def init_db():
-    db.crud.init_database("ALL")
+    crud.init_database("ALL")
     return {"message": "Database initialized with sample data."}
 
 
