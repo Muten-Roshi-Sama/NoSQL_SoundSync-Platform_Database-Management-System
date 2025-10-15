@@ -1,15 +1,31 @@
-from app.db.mongo import db 
-from app.models.user import User
+# from app.db.mongo import db 
+# from app.models.user import User
+from app.db import crud
 
-def create_user(user: User):
-    result = db["users"].insert_one(user.dict())
-    return { "id": str(result.inserted_id), **user.dict() }
+# ACCESS DB
+# from app.db.mongo import get_mongo_database
+# MC = get_mongo_database()
 
-def get_all_users():
-    return db["users"].find()
+COLLECTION = "users"
 
-# essaye de trouver un utilisateur avec l'email qu'il propose
-def get_user(mailAttempt:str):
-    user = db["users"].find_one({"email":mailAttempt}) 
-    return user
 
+def get_all_users(skip: int = 0, limit: int = 50):
+    return crud.get_all(COLLECTION, skip=skip, limit=limit)
+
+def get_user_by_id(id_or_key: str):
+    return crud.get_by_id(COLLECTION, id_or_key)
+
+def create_user(user_data):
+    return crud.create_one(COLLECTION, user_data)
+
+def update_user(user_id, updates):
+    return crud.update_one(COLLECTION, user_id, updates)
+
+def delete_user(user_id):
+    return crud.delete_one(COLLECTION, user_id)
+
+def count_users(filter=None):
+    return crud.count_documents(COLLECTION, filter)
+
+def find_users_by_field(field, value, skip=0, limit=50):
+    return crud.find_by_field(COLLECTION, field, value, skip, limit)
