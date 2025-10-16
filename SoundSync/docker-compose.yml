@@ -24,6 +24,19 @@ services:
       - mongo_data:/data/db
     ports:
       - "27017:27017"
+  
+  mongo-express:
+    image: mongo-express:1
+    container_name: mongo-express
+    ports:
+      - "8081:8081"           # ou "8082:8081" pour éviter le cache du navigateur
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=secret
+    depends_on:
+      - mongo
+    restart: unless-stopped
 
   redis:
     image: redis:7
@@ -42,6 +55,8 @@ services:
       - "3000:5173"
     depends_on:
       - backend
+
+  
 
 volumes:
   mongo_data:
