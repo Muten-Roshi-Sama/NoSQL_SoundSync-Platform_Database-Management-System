@@ -1,0 +1,30 @@
+[
+    {
+    "_id": "user1",
+    "username": "alice",
+    "email": "alice@example.com",
+    "password_hash": "hashed_pw1",
+    "playlists": ["playlist1", "playlist2"],
+    "followed_artists": ["artist1", "artist2"],
+    "subscription": "premium",
+    "liked_tracks": ["track1", "track3"],
+    "profile": {
+        "display_name": "Alice",
+        "avatar_url": "https://example.com/avatar/alice.png"
+    }
+    },
+    {
+    "_id": "user2",
+    "username": "bob",
+    "email": "bob@example.com",
+    "password_hash": "hashed_pw2",
+    "playlists": ["playlist3"],
+    "followed_artists": ["artist2"],
+    "subscription": "free",
+    "liked_tracks": ["track2"],
+    "profile": {
+        "display_name": "Bob",
+        "avatar_url": "https://example.com/avatar/bob.png"
+    }
+    }
+]

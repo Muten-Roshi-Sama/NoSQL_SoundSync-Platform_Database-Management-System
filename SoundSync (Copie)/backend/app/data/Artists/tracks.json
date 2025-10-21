@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "track1",
+    "title": "Midnight Groove",
+    "artist_id": "artist1",
+    "album_id": "album1",
+    "duration_sec": 210,
+    "genre": "Jazz",
+    "popularity": 87
+  },
+  {
+    "_id": "track2",
+    "title": "Sunrise Stroll",
+    "artist_id": "artist1",
+    "album_id": "album1",
+    "duration_sec": 185,
+    "genre": "Jazz",
+    "popularity": 75
+  },
+  {
+    "_id": "track3",
+    "title": "Retro Drive",
+    "artist_id": "artist2",
+    "album_id": "album2",
+    "duration_sec": 240,
+    "genre": "Synthwave",
+    "popularity": 92
+  }
+]

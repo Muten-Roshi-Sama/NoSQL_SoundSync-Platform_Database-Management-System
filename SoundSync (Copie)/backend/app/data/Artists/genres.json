@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "genre1",
+    "name": "Jazz",
+    "description": "Smooth and classic jazz music."
+  },
+  {
+    "_id": "genre2",
+    "name": "Synthwave",
+    "description": "Retro electronic music inspired by the 80s."
+  }
+]

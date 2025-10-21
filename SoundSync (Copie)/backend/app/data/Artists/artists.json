@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "artist1",
+    "name": "The Jazz Cats",
+    "biography": "A modern jazz band.",
+    "albums": ["album1"],
+    "concerts": ["concert1"]
+  },
+  {
+    "_id": "artist2",
+    "name": "Synthwave Dreams",
+    "biography": "Electronic music duo.",
+    "albums": ["album2"],
+    "concerts": ["concert2"]
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "album1",
+    "title": "Smooth Jazz Nights",
+    "artist_id": "artist1",
+    "release_year": 2022,
+    "tracks": ["track1", "track2"]
+  },
+  {
+    "_id": "album2",
+    "title": "Neon Lights",
+    "artist_id": "artist2",
+    "release_year": 2023,
+    "tracks": ["track3"]
+  }
+]
