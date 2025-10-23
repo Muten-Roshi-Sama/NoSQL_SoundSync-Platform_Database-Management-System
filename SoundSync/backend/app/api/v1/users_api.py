@@ -23,7 +23,7 @@ def get_user(user_id: str):
 @router.post("/")
 def create_user(user_data: dict):
     """Create a new user."""
-    user_id = user_service.create_user(user_data)
+    user_id = crud.create_one(COLLECTION, user_data)
     return {"user_id": user_id, "message": "User created"}
 
 @router.put("/{user_id}")

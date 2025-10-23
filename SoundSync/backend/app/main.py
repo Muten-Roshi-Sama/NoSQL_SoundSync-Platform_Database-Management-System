@@ -5,7 +5,8 @@ from app.core import events
 # import all routers
 from app.api.v1 import health_api as health
 from app.api.v1 import init_db_api as init_db
-from app.api.v1 import users_api as users
+# from app.api.v1 import users_api as users
+from app.api.v1 import collections_api as coll
 # from app.api.v1 import tracks_api as tracks
 # from app.api.v1 import artists_api as artists
 # from app.api.v1 import albums_api as albums
@@ -57,12 +58,18 @@ def read_root():
 
 
 
+# CRUD - centralized
+app.include_router(coll.router,prefix="/api" )
+
 # MISC
 app.include_router(health.router, prefix="/api", tags=["health"])
 app.include_router(init_db.router, prefix="/api", tags=["init_db"])
 
-# Users
-app.include_router(users.router, prefix="/api/users", tags=["users"])
+
+
+
+# # Users
+# app.include_router(users.router, prefix="/api/users", tags=["users"])
 
 # Artists
 # app.include_router(artists.router, prefix="/api/artists", tags=["artists"])
