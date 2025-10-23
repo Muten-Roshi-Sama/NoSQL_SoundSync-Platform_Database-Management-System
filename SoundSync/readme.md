@@ -190,6 +190,31 @@ docker compose logs -f frontend
 ```
 
 ---
+## Pytests (CRUD):
+
+Run the docker, initialize the database (optionnal)
+Run:
+```
+# Run all tests in the new file
+pytest tests/test_collections_api.py -v -s
+
+# Run only CRUD flow tests for all collections
+pytest tests/test_collections_api.py::test_crud_flow_all_collections -v -s
+
+
+# Run only pagination tests
+pytest tests/test_collections_api.py::test_get_all_pagination -v -s
+
+# Run only sorting tests
+pytest tests/test_collections_api.py::test_get_all_with_sort -v -s
+
+# Run all tests with coverage
+pytest tests/test_collections_api.py --cov=app -v -s
+```
+
+
+
+---
 
 ## 📘 Notes techniques
 

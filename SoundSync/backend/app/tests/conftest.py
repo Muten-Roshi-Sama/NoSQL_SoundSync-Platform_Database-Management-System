@@ -30,3 +30,13 @@ def client():
 @pytest.fixture(scope="function")
 def db():
     return get_mongo_database()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def cleanup_test_data(db):
+    """Automatically clean up test data after each test."""
+    yield
+    # Clean up any documents with test IDs
+    collections = ["users", "tracks", "artists", "playlists", "albums"]
+    for coll in collections:
+        db[coll].delete_many({"_id": {"$regex": "^test_"}})
