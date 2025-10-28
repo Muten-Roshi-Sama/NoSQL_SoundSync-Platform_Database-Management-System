@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException
 from app.services import user_service
 
+
 router = APIRouter()
 
 @router.get("/")
