@@ -48,13 +48,19 @@ def read_root():
 
 # =====================================================================
 # Path Logic :
-    # List all	      :   /api/tracks	
-    # Get by id	      :   /api/tracks/{track_id}
-    # Filter/search	  :   /api/tracks?genre=Jazz&q=love
-    # By field	      :   /api/tracks/by_artist/{artist_id}
-    # Create	      :   /api/tracks
-    # Update	      :   /api/tracks/{track_id}
-    # Delete	      :   /api/tracks/{track_id}
+    # Check tests/test_collections_api.py for implementations and examples
+    # -----------Api-----------------------------------
+    # Init db         (POST)   :   /api/init_db
+    # Clean db        (POST)   :   /api/clean_db
+    # ----------CRUDs---------------------------------
+    # List all	      (GET)    :   /crud/tracks	
+    # Get by id	      (GET)    :   /crud/tracks/by/{id_or_key}
+    # Count           (GET)    :   /crud/count
+    # Filter/search	  (POST)   :   /crud/tracks?genre=Jazz&q=love     (same function as List all...)
+    # Create	      (POST)   :   /crud/tracks
+    # Update	      (POST)   :   /crud/tracks/{track_id}
+    # Delete	      (POST)   :   /crud/tracks/{track_id}
+
 
 
 
