@@ -28,7 +28,7 @@ def get_all(
     result = crud.get_all(collection_name, filter=filter_val, skip=skip, limit=limit, sort=sort_val, projection=projection_val)
     return result
 
-@router.get("/{collection_name}/{id_or_key}")
+@router.get("/{collection_name}/by/{id_or_key}")
 def get_instance(collection_name : str, id_or_key: str):
     """Get a single document by ID."""
     document = crud.get_by_id(collection_name, id_or_key)
@@ -52,7 +52,7 @@ def create_instance(collection_name : str, document_data: dict):
     doc_id = crud.create_one(collection_name, document_data)
     return {"id": doc_id, "message": f"Document created in {collection_name}"}
 
-@router.put("/{collection_name}/{id}")
+@router.put("/{collection_name}/by/{id}")
 def update_instance(collection_name : str, id: str, updates: dict):
     """Update a document by ID."""
     modified = crud.update_one(collection_name, id, updates)
@@ -60,7 +60,7 @@ def update_instance(collection_name : str, id: str, updates: dict):
         raise HTTPException(status_code=404, detail=f"Document from {collection_name} not found or not modified")
     return {"modified": modified, "message": f"Document {id} from {collection_name} updated"}
 
-@router.delete("/{collection_name}/{id}")
+@router.delete("/{collection_name}/by/{id}")
 def delete_instance(collection_name : str, id: str):
     """Delete a document by ID."""
     deleted = crud.delete_one(collection_name, id)
