@@ -59,11 +59,11 @@ def read_root():
 
 
 # CRUD - centralized
-app.include_router(coll.router,prefix="/api" )
+app.include_router(coll.router,prefix="/crud" )
 
 # MISC
 app.include_router(health.router, prefix="/api", tags=["health"])
-app.include_router(init_db.router, prefix="/api", tags=["init_db"])
+app.include_router(init_db.router, prefix="/api", tags=["init_db", "clean_db"])
 
 
 

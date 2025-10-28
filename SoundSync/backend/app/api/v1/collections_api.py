@@ -7,20 +7,6 @@ router = APIRouter()
 
 
 
-@router.get("/{collection_name}/by/{field}/{value}")
-def find_instances_by_field(
-    collection_name : str,
-    field: str,
-    value: str,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=200),
-    projection: str = Query(None, description="JSON dict, e.g. {\"field\": 1}")
-    ):
-    """Find documents by a specific field value."""
-    projection_val = json.loads(projection) if projection else None
-    result = crud.find_by_field(collection_name, field, value, skip, limit, projection_val)
-    return result
-
 
 # ====================
 # GET
@@ -98,84 +84,125 @@ def delete_instance(collection_name : str, id: str):
 
 
 
+# ==========================================
+# USAGE EXAMPLES
+# ==========================================
+
+"""
+# 1. GET ALL with sorting and projection
+GET /api/users?skip=0&limit=10&sort=[["created_at",-1]]&projection={"name":1,"email":1}
+Output: {"items": [...], "total": 100, "skip": 0, "limit": 10}
+
+# 2. GET ALL with filtering (e.g., only artists)
+GET /api/users?filter={"role":"artist"}
+Output: {"items": [...], "total": 25, "skip": 0, "limit": 50}
+
+# 3. GET ALL with combined filters, sort, and projection
+GET /api/tracks?filter={"genre":"Jazz"}&sort=[["popularity",-1]]&projection={"title":1,"artist":1}
+Output: {"items": [...], "total": 15, "skip": 0, "limit": 50}
+
+# 4. GET BY ID
+GET /api/users/67890abcdef12345
+Output: {"document": {"_id": "67890...", "name": "Alice", ...}}
+
+# 5. COUNT with filter
+GET /api/users/count?filter={"role":"artist"}
+Output: {"count": 25}
+
+# 6. COUNT without filter (total documents)
+GET /api/users/count
+Output: {"count": 100}
+
+# 7. FIND BY FIELD with projection
+GET /api/users/by/role/artist?projection={"name":1,"email":1}
+Output: {"items": [...], "total": 25, "skip": 0, "limit": 50}
+
+# 8. FIND BY FIELD with pagination
+GET /api/tracks/by/genre/Jazz?skip=10&limit=5
+Output: {"items": [...], "total": 15, "skip": 10, "limit": 5}
+
+# 9. CREATE
+POST /api/users
+Body: {"name": "Bob", "email": "bob@example.com", "role": "user"}
+Output: {"id": "abc123...", "message": "Document created in users"}
+
+# 10. UPDATE
+PUT /api/users/abc123
+Body: {"email": "newemail@example.com"}
+Output: {"modified": 1, "message": "Document abc123 from users updated"}
+
+# 11. DELETE
+DELETE /api/users/abc123
+Output: {"deleted": 1, "message": "Document abc123 from users deleted"}
 
 
+# ==========================================
+# PYTHON EQUIVALENT (what happens internally)
+# ==========================================
 
-# ===========================
-# EXAMPLES: How to call the API
-# ===========================
+# GET ALL with sort and projection
+crud.get_all(
+    collection_name="users",
+    filter={"role": "artist"},
+    skip=0,
+    limit=10,
+    sort=[("created_at", -1)],
+    projection={"name": 1, "email": 1}
+)
+# Returns: {"items": [...], "total": 25, "skip": 0, "limit": 10}
 
-# 1. Get all users, sorted by creation date descending, only show name and email
-# GET /api/users?skip=0&limit=10&sort=[["created_at",-1]]&projection={"name":1,"email":1}
+# COUNT with filter
+crud.count_documents(
+    collection_name="users",
+    filter={"role": "artist"}
+)
+# Returns: 25
 
-# 2. Get all tracks, sorted by popularity ascending, show all fields
-# GET /api/tracks?sort=[["popularity",1]]
+# FIND BY FIELD with projection
+crud.find_by_field(
+    collection_name="users",
+    field="role",
+    value="artist",
+    skip=0,
+    limit=50,
+    projection={"name": 1, "email": 1}
+)
+# Returns: {"items": [...], "total": 25, "skip": 0, "limit": 50}
 
-# 3. Get all playlists, only show name and track_ids
-# GET /api/playlists?projection={"name":1,"track_ids":1}
 
-# 4. Get all artists, no sort, no projection
-# GET /api/artists
+# ==========================================
+# FRONTEND FETCH EXAMPLES (JavaScript)
+# ==========================================
 
-# 5. Get all users, filter by role
-# GET /api/users/by/role/artist
+// GET ALL with sort and projection
+const sortParam = encodeURIComponent(JSON.stringify([["created_at", -1]]));
+const projectionParam = encodeURIComponent(JSON.stringify({"name": 1, "email": 1}));
+fetch(`/api/users?sort=${sortParam}&projection=${projectionParam}`)
 
-# 6. Get user by ID
-# GET /api/users/1234567890abcdef
+// GET ALL with filter
+const filterParam = encodeURIComponent(JSON.stringify({"role": "artist"}));
+fetch(`/api/users?filter=${filterParam}`)
 
-# 7. Create a new user
-# POST /api/users
-# Body: {"name": "Alice", "email": "alice@example.com", "role": "artist"}
+// COUNT with filter
+fetch(`/api/users/count?filter=${filterParam}`)
 
-# 8. Update a user
-# PUT /api/users/1234567890abcdef
-# Body: {"email": "newalice@example.com"}
+// FIND BY FIELD with projection
+fetch(`/api/users/by/role/artist?projection=${projectionParam}`)
 
-# 9. Delete a user
-# DELETE /api/users/1234567890abcdef
+// CREATE
+fetch('/api/users', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: "Alice", email: "alice@example.com"})
+})
 
-# 10. Count documents in a collection
-# GET /api/users/count
+// UPDATE
+fetch('/api/users/abc123', {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: "newemail@example.com"})
+})
 
-# ===========================
-# EXAMPLES: Python input/output
-# ===========================
-
-# Input to get_all:
-# collection_name = "users"
-# skip = 0
-# limit = 10
-# sort = [["created_at", -1]]
-# projection = {"name": 1, "email": 1}
-
-# result = crud.get_all(collection_name, skip=skip, limit=limit, sort=sort, projection=projection)
-
-# Output:
-# {
-#     "items": [
-#         {"_id": "123...", "name": "Alice", "email": "alice@example.com"},
-#         {"_id": "456...", "name": "Bob", "email": "bob@example.com"},
-#         # ...
-#     ],
-#     "total": 2,
-#     "skip": 0,
-#     "limit": 10
-# }
-
-# ===========================
-# EXAMPLES: How to pass sort/projection in frontend fetch
-# ===========================
-
-# fetch('/api/users?sort=' + encodeURIComponent(JSON.stringify([["created_at",-1]])) + '&projection=' + encodeURIComponent(JSON.stringify({"name":1,"email":1})))
-
-# ===========================
-# EXAMPLES: Error handling
-# ===========================
-
-# If you pass invalid JSON for sort/projection:
-# GET /api/users?sort=not_json
-# Output: 422 Unprocessable Entity
-
-# If you request a non-existent document:
-# GET /api/users/doesnotexist
-# Output: 404 Document from users not found
+// DELETE
+fetch('/api/users/abc123', {method: 'DELETE'})
+"""

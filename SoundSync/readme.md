@@ -201,7 +201,6 @@ pytest tests/test_collections_api.py -v -s
 # Run only CRUD flow tests for all collections
 pytest tests/test_collections_api.py::test_crud_flow_all_collections -v -s
 
-
 # Run only pagination tests
 pytest tests/test_collections_api.py::test_get_all_pagination -v -s
 

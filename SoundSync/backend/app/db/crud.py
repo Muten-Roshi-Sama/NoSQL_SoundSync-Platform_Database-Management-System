@@ -153,29 +153,15 @@ def delete_one(collection_name: str, id_or_key: str) -> int:
     return res.deleted_count
 
 
-def count_documents(collection_name: str, filter: Optional[Dict[str, Any]] = None) -> int:
+def count_documents(
+    collection_name: str, 
+    filter: Optional[Dict[str, Any]] = None
+    ) -> int:
     coll = MC[collection_name]
     return coll.count_documents(filter or {})
 
 
-def find_by_field(
-    collection_name: str,
-    field: str,
-    value: Any,
-    skip: int = 0,
-    limit: int = 50,
-    projection: Optional[Dict[str, int]] = None,
-    ) -> Dict[str, Any]:
-    """
-    Simple helper to match a single field; returns same shape as get_all().
-    """
-    return get_all(
-        collection_name=collection_name,
-        filter={field: value},
-        skip=skip,
-        limit=limit,
-        projection=projection,
-    )
+
 
 
 
