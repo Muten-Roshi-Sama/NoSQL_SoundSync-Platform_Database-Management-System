@@ -8,6 +8,10 @@ import json
 from urllib.parse import quote
 
 
+
+PATH = "crud"
+
+
 # ==========================================
 # TEST DATA FOR ALL COLLECTIONS
 # ==========================================
@@ -81,26 +85,26 @@ def test_crud_flow_all_collections(client, db, collection):
     # clean_collection(db, collection, doc_id)
     
     # 1. CREATE
-    response = client.post(f"/api/{collection}", json=test_doc)
+    response = client.post(f"/{PATH}/{collection}", json=test_doc)
     assert response.status_code == 200
     assert "id" in response.json()
     print(f"✓ CREATE: {collection} created")
     
     # 2. READ
-    response = client.get(f"/api/{collection}/{doc_id}")
+    response = client.get(f"/{PATH}/{collection}/by/{doc_id}")
     assert response.status_code == 200
     assert "document" in response.json()
     assert response.json()["document"]["_id"] == doc_id
     print(f"✓ READ: {collection} retrieved")
     
     # 3. UPDATE
-    response = client.put(f"/api/{collection}/{doc_id}", json=updated_doc)
+    response = client.put(f"/{PATH}/{collection}/by/{doc_id}", json=updated_doc)
     assert response.status_code == 200
     assert response.json()["modified"] == 1
     print(f"✓ UPDATE: {collection} updated")
     
     # 4. VERIFY UPDATE
-    response = client.get(f"/api/{collection}/{doc_id}")
+    response = client.get(f"/{PATH}/{collection}/by/{doc_id}")
     assert response.status_code == 200
     doc = response.json()["document"]
     for key, value in updated_doc.items():
@@ -108,13 +112,13 @@ def test_crud_flow_all_collections(client, db, collection):
     print(f"✓ VERIFY: {collection} update confirmed")
     
     # 5. DELETE
-    response = client.delete(f"/api/{collection}/{doc_id}")
+    response = client.delete(f"/{PATH}/{collection}/by/{doc_id}")
     assert response.status_code == 200
     assert response.json()["deleted"] == 1
     print(f"✓ DELETE: {collection} deleted")
     
     # 6. VERIFY DELETION
-    response = client.get(f"/api/{collection}/{doc_id}")
+    response = client.get(f"/{PATH}/{collection}/by/{doc_id}")
     assert response.status_code == 404
     print(f"✓ VERIFY: {collection} deletion confirmed\n")
 
@@ -135,7 +139,7 @@ def test_get_all_pagination(client, db, collection):
     db[collection].insert_many(test_docs)
     
     # Test pagination
-    response = client.get(f"/api/{collection}?skip=1&limit=2")
+    response = client.get(f"/{PATH}/{collection}?skip=1&limit=2")
     assert response.status_code == 200
     data = response.json()
     assert "items" in data
@@ -162,26 +166,29 @@ def test_get_all_with_sort(client, db):
         {"_id": "user_sort_2", "username": "bob", "created_at": "2025-01-03"},
         {"_id": "user_sort_3", "username": "charlie", "created_at": "2025-01-02"},
     ]
+    db.users.delete_many({"_id": {"$regex": "^user_sort_"}})
     db.users.insert_many(users)
     
     # Sort by created_at ascending
     sort_param = quote(json.dumps([["created_at", 1]]))
-    response = client.get(f"/api/users?sort={sort_param}")
+    response = client.get(f"/{PATH}/users?sort={sort_param}")
     assert response.status_code == 200
     items = response.json()["items"]
-    assert items[0]["username"] == "alice"
-    assert items[1]["username"] == "charlie"
-    assert items[2]["username"] == "bob"
+    subset = [i for i in items if i["_id"].startswith("user_sort_")]
+    assert subset[0]["username"] == "alice"
+    assert subset[1]["username"] == "charlie"
+    assert subset[2]["username"] == "bob"
     print("✓ SORT: Ascending order works")
     
     # Sort by created_at descending
     sort_param = quote(json.dumps([["created_at", -1]]))
-    response = client.get(f"/api/users?sort={sort_param}")
+    response = client.get(f"/{PATH}/users?sort={sort_param}")
     assert response.status_code == 200
     items = response.json()["items"]
-    assert items[0]["username"] == "bob"
-    assert items[1]["username"] == "charlie"
-    assert items[2]["username"] == "alice"
+    subset = [i for i in items if i["_id"].startswith("user_sort_")]
+    assert subset[0]["username"] == "bob"
+    assert subset[1]["username"] == "charlie"
+    assert subset[2]["username"] == "alice"
     print("✓ SORT: Descending order works")
     
     # Cleanup
@@ -207,7 +214,7 @@ def test_get_all_with_projection(client, db):
     
     # Get only username and email (exclude password)
     projection_param = quote(json.dumps({"username": 1, "email": 1}))
-    response = client.get(f"/api/users?projection={projection_param}")
+    response = client.get(f"/{PATH}/users?projection={projection_param}")
     assert response.status_code == 200
     items = response.json()["items"]
     
@@ -241,7 +248,7 @@ def test_get_all_with_filter(client, db):
     
     # Filter by role=artist
     filter_param = quote(json.dumps({"role": "artist"}))
-    response = client.get(f"/api/users?filter={filter_param}")
+    response = client.get(f"/{PATH}/users?filter={filter_param}")
     assert response.status_code == 200
     items = response.json()["items"]
     
@@ -269,7 +276,7 @@ def test_count_documents(client, db, collection):
     db[collection].insert_many(test_docs)
     
     # Count all
-    response = client.get(f"/api/{collection}/count")
+    response = client.get(f"/{PATH}/{collection}/count")
     assert response.status_code == 200
     assert "count" in response.json()
     count = response.json()["count"]
@@ -281,40 +288,12 @@ def test_count_documents(client, db, collection):
 
 
 # ==========================================
-# TEST: FIND BY FIELD
-# ==========================================
-
-# def test_find_by_field(client, db):
-#     """Test FIND BY FIELD endpoint."""
-    
-#     # Insert tracks with different genres
-#     tracks = [
-#         {"_id": "track_genre_1", "title": "Jazz Song 1", "genre": "Jazz"},
-#         {"_id": "track_genre_2", "title": "Jazz Song 2", "genre": "Jazz"},
-#         {"_id": "track_genre_3", "title": "Pop Song", "genre": "Pop"},
-#     ]
-#     db.tracks.insert_many(tracks)
-    
-#     # Find tracks by genre=Jazz
-#     response = client.get("/api/tracks/by/genre/Jazz")
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert "items" in data
-#     jazz_tracks = [item for item in data["items"] if item.get("genre") == "Jazz"]
-#     assert len(jazz_tracks) >= 2
-#     print("✓ FIND BY FIELD: Genre filtering works")
-    
-#     # Cleanup
-#     db.tracks.delete_many({"_id": {"$regex": "^track_genre_"}})
-
-
-# ==========================================
 # TEST: ERROR HANDLING
 # ==========================================
 
 def test_get_nonexistent_document(client):
     """Test 404 for non-existent document."""
-    response = client.get("/api/users/nonexistent_id_12345")
+    response = client.get(f"/{PATH}/users/by/nonexistent_id_12345")
     assert response.status_code == 404
     assert "not found" in response.json()["detail"].lower()
     print("✓ ERROR: 404 for non-existent document")
@@ -322,14 +301,14 @@ def test_get_nonexistent_document(client):
 
 def test_delete_nonexistent_document(client):
     """Test 404 when deleting non-existent document."""
-    response = client.delete("/api/users/nonexistent_id_12345")
+    response = client.delete(f"/{PATH}/users/by/nonexistent_id_12345")
     assert response.status_code == 404
     print("✓ ERROR: 404 when deleting non-existent document")
 
 
 def test_update_nonexistent_document(client):
     """Test 404 when updating non-existent document."""
-    response = client.put("/api/users/nonexistent_id_12345", json={"username": "test"})
+    response = client.put(f"/{PATH}/users/by/nonexistent_id_12345", json={"username": "test"})
     assert response.status_code == 404
     print("✓ ERROR: 404 when updating non-existent document")
 
@@ -354,7 +333,7 @@ def test_combined_filter_sort_projection(client, db):
     sort_param = quote(json.dumps([["rating", -1]]))
     projection_param = quote(json.dumps({"name": 1, "rating": 1}))
     
-    response = client.get(f"/api/artists?filter={filter_param}&sort={sort_param}&projection={projection_param}")
+    response = client.get(f"/{PATH}/artists?filter={filter_param}&sort={sort_param}&projection={projection_param}")
     assert response.status_code == 200
     items = response.json()["items"]
     
