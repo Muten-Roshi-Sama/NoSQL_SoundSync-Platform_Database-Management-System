@@ -49,6 +49,14 @@
 
 
 
+from app.db.mongo import db
+
+users_collection = db["users"]
+sessions_collection = db["sessions"]
+tracks_collection = db["tracks"]
+playlists_collection = db["playlists"]
+artists_collection = db["artists"]
+
 
 
 

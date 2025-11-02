@@ -1,29 +1,72 @@
 [
   {
     "_id": "track1",
-    "title": "Midnight Groove",
+    "title": "Delusion",
     "artist_id": "artist1",
     "album_id": "album1",
-    "duration_sec": 210,
-    "genre": "Jazz",
-    "popularity": 87
+    "duration_sec": 215,
+    "genre": "Electronic",
+    "popularity": 88,
+    "audio_url": "/static/audio/delusion_tpazolite.mp3"
   },
   {
     "_id": "track2",
-    "title": "Sunrise Stroll",
-    "artist_id": "artist1",
-    "album_id": "album1",
-    "duration_sec": 185,
-    "genre": "Jazz",
-    "popularity": 75
+    "title": "The Golden Horde",
+    "artist_id": "artist2",
+    "album_id": "album2",
+    "duration_sec": 200,
+    "genre": "Rock",
+    "popularity": 82,
+    "audio_url": "/static/audio/the_golden_horde_ironheart.mp3"
   },
   {
     "_id": "track3",
-    "title": "Retro Drive",
-    "artist_id": "artist2",
-    "album_id": "album2",
-    "duration_sec": 240,
-    "genre": "Synthwave",
-    "popularity": 92
+    "title": "Assume Good To Love The World, Assume Evil To Love Yourself",
+    "artist_id": "artist3",
+    "album_id": "album3",
+    "duration_sec": 250,
+    "genre": "Experimental",
+    "popularity": 75,
+    "audio_url": "/static/audio/assume_good_to_love_dysmn.mp3"
+  },
+  {
+    "_id": "track4",
+    "title": "Je T'emmène au vent",
+    "artist_id": "artist4",
+    "album_id": "album4",
+    "duration_sec": 230,
+    "genre": "Chanson Française",
+    "popularity": 90,
+    "audio_url": "/static/audio/je_temmene_au_vent_boris_moris.mp3"
+  },
+  {
+    "_id": "track5",
+    "title": "Löschen",
+    "artist_id": "artist5",
+    "album_id": "album5",
+    "duration_sec": 195,
+    "genre": "Electronic",
+    "popularity": 78,
+    "audio_url": "/static/audio/loschen_blacky.mp3"
+  },
+  {
+    "_id": "track6",
+    "title": "Lisrim",
+    "artist_id": "artist6",
+    "album_id": "album6",
+    "duration_sec": 210,
+    "genre": "Video Game",
+    "popularity": 80,
+    "audio_url": "/static/audio/lisrim_onoken.mp3"
+  },
+  {
+    "_id": "track7",
+    "title": "Flamewall",
+    "artist_id": "artist7",
+    "album_id": "album7",
+    "duration_sec": 220,
+    "genre": "Electronic",
+    "popularity": 85,
+    "audio_url": "/static/audio/flamewall_camellia.mp3"
   }
 ]
