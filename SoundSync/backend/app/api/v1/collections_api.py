@@ -6,8 +6,6 @@ import json
 router = APIRouter()
 
 
-
-
 # ====================
 # GET
 # ====================
