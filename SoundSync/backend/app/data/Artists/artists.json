@@ -1,16 +1,44 @@
 [
   {
     "_id": "artist1",
-    "name": "The Jazz Cats",
-    "biography": "A modern jazz band.",
-    "albums": ["album1"],
-    "concerts": ["concert1"]
+    "name": "t+pazolite",
+    "genre": "Electronic",
+    "biography": "t+pazolite est un producteur japonais reconnu pour ses morceaux de hardcore et de speedcore aux rythmes frénétiques et mélodies accrocheuses."
   },
   {
     "_id": "artist2",
-    "name": "Synthwave Dreams",
-    "biography": "Electronic music duo.",
-    "albums": ["album2"],
-    "concerts": ["concert2"]
+    "name": "Ironheart",
+    "genre": "Rock",
+    "biography": "Ironheart est un groupe de rock alternatif qui mélange guitares puissantes et mélodies épiques, créant un son à la fois énergique et émotionnel."
+  },
+  {
+    "_id": "artist3",
+    "name": "Dysmn",
+    "genre": "Experimental",
+    "biography": "Dysmn explore les frontières de la musique expérimentale en combinant sons électroniques et textures sonores uniques pour créer des paysages auditifs intrigants."
+  },
+  {
+    "_id": "artist4",
+    "name": "Boris & Moris",
+    "genre": "Chanson Française",
+    "biography": "Boris & Moris revisitent la chanson française classique avec des arrangements modernes, alliant poésie et rythmes entraînants."
+  },
+  {
+    "_id": "artist5",
+    "name": "BlackY",
+    "genre": "Electronic",
+    "biography": "BlackY est un producteur électronique qui crée des morceaux sombres et immersifs, mélangeant basses puissantes et atmosphères planantes."
+  },
+  {
+    "_id": "artist6",
+    "name": "Onoken",
+    "genre": "Video Game",
+    "biography": "Onoken est connu pour ses compositions inspirées de l'univers des jeux vidéo, avec des mélodies épiques et des rythmes dynamiques qui transportent l'auditeur."
+  },
+  {
+    "_id": "artist7",
+    "name": "Camellia",
+    "genre": "Electronic",
+    "biography": "Camellia est un producteur japonais de musique électronique et de hardcore qui combine virtuosité technique et créativité pour des morceaux électrisants."
   }
 ]

@@ -19,7 +19,7 @@ export default function Home() {
             className="bg-neutral-800 hover:bg-neutral-700 p-3 rounded cursor-pointer"
           >
             <p className="font-semibold">{track.title}</p>
-            <p className="text-sm text-gray-400">{track.artist}</p>
+            <p className="text-sm text-gray-400">{track.artist || track.artist_id}</p>
           </div>
         ))}
       </div>

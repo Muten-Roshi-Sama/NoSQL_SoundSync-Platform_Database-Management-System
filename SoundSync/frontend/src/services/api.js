@@ -5,7 +5,6 @@ export async function loginUser(identifier, password) {
   const data = await res.json();
 
   if (!data.items || data.items.length === 0) {
-    // Si pas trouvé par username, on essaie l'email
     const resEmail = await fetch(`${API_BASE}/users/by/email/${identifier}`);
     const dataEmail = await resEmail.json();
     if (!dataEmail.items || dataEmail.items.length === 0)
@@ -32,8 +31,16 @@ export async function registerUser(formData) {
   return await res.json();
 }
 
-export async function searchTracks(query) {
-  const res = await fetch(`${API_BASE}/tracks/by/title/${query}`);
+export async function searchTracks(query = "") {
+  let url;
+  if (!query.trim()) {
+    // récupérer 5 tracks aléatoires si rien n'est écrit
+    url = `${API_BASE}/tracks/random?limit=5`;
+  } else {
+    url = `${API_BASE}/tracks/by/title/${query}`;
+  }
+
+  const res = await fetch(url);
   const data = await res.json();
   return data.items || [];
 }
