@@ -5,26 +5,58 @@ import Player from "../components/Player";
 export default function Home() {
   const [tracks, setTracks] = useState([]);
   const [currentTrack, setCurrentTrack] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleTrackClick = (track, index) => {
+    setCurrentTrack(track);
+    setCurrentIndex(index);
+  };
+
+  const handleNext = () => {
+    if (tracks.length === 0) return;
+    const nextIndex = (currentIndex + 1) % tracks.length;
+    setCurrentTrack(tracks[nextIndex]);
+    setCurrentIndex(nextIndex);
+  };
+
+  const handlePrev = () => {
+    if (tracks.length === 0) return;
+    const prevIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+    setCurrentTrack(tracks[prevIndex]);
+    setCurrentIndex(prevIndex);
+  };
 
   return (
-    <div className="p-6 text-white bg-neutral-950 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Découvre de nouveaux sons 🔥</h1>
+    <div className="min-h-screen bg-[#121212] text-white p-8 pb-32">
+      <h1 className="text-3xl font-bold mb-6">
+        Découvre de nouveaux sons 🔥
+      </h1>
+
       <SearchBar onResults={setTracks} />
 
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        {tracks.map((track) => (
-          <div
-            key={track._id}
-            onClick={() => setCurrentTrack(track)}
-            className="bg-neutral-800 hover:bg-neutral-700 p-3 rounded cursor-pointer"
-          >
-            <p className="font-semibold">{track.title}</p>
-            <p className="text-sm text-gray-400">{track.artist || track.artist_id}</p>
-          </div>
-        ))}
+      <div className="tracks-grid">
+  {tracks.map((track, index) => (
+    <div
+      key={track._id}
+      onClick={() => handleTrackClick(track, index)}
+      className={`track-card ${currentTrack?._id === track._id ? "active" : ""} cursor-pointer`}
+    >
+      <div className="h-36 bg-neutral-800 rounded-lg mb-3 flex items-center justify-center">
+        🎵
       </div>
+      <p className="font-semibold truncate">{track.title}</p>
+      <p className="text-sm text-gray-400 truncate">
+        {track.artist || track.artist_id}
+      </p>
+    </div>
+  ))}
+</div>
 
-      <Player currentTrack={currentTrack} />
+      <Player
+        currentTrack={currentTrack}
+        onNext={handleNext}
+        onPrev={handlePrev}
+      />
     </div>
   );
 }

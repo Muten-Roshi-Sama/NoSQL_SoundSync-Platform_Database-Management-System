@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core import events
+from fastapi.staticfiles import StaticFiles
+import os
 
 # import all routers
 from app.api.v1 import health_api as health
@@ -17,6 +19,11 @@ from app.api.v1 import collections_api as coll
 
 
 app = FastAPI(title="Soundsync API", version="0.1.0")
+
+
+static_path = os.path.join(os.path.dirname(__file__), "static") 
+print("Static files path:", static_path) 
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 origins = [
     "http://localhost:3000",  # frontend dev

@@ -125,6 +125,13 @@ def get_by_id(collection_name: str, id_or_key: str) -> Optional[Dict[str, Any]]:
     doc = coll.find_one(_id_query(id_or_key))
     return _to_str_id(doc) if doc else None
 
+def get_one_by_field(collection_name: str, field: str, value: Any) -> Optional[Dict[str, Any]]:
+    """
+    Fetch a single document by any field and value.
+    """
+    coll = MC[collection_name]
+    doc = coll.find_one({field: value})
+    return _to_str_id(doc) if doc else None
 
 def create_one(collection_name: str, data: Dict[str, Any]) -> str:
     """

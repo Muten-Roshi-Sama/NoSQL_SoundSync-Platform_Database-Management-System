@@ -26,10 +26,10 @@ def get_all(
     result = crud.get_all(collection_name, filter=filter_val, skip=skip, limit=limit, sort=sort_val, projection=projection_val)
     return result
 
-@router.get("/{collection_name}/by/{id_or_key}")
-def get_instance(collection_name : str, id_or_key: str):
+@router.get("/{collection_name}/by/{field}/{value}")
+def get_instance(collection_name : str, field:str, value: str):
     """Get a single document by ID."""
-    document = crud.get_by_id(collection_name, id_or_key)
+    document = crud.get_one_by_field(collection_name, field, value)
     if not document:
         raise HTTPException(status_code=404, detail=f"Document from {collection_name} not found")
     return {"document": document}
@@ -40,6 +40,25 @@ def count_instances(collection_name : str, filter: str = Query(None, description
     count = crud.count_documents(collection_name, filter)
     return {"count": count}
 
+
+@router.get("/tracks/search")
+def search_tracks(q: str = Query(..., min_length=1, description="Texte de recherche")):
+    """
+    Recherche partielle dans les titres et artistes.
+    """
+    if not q:
+        return {"items": [], "total": 0}
+
+    # Regex insensible à la casse pour MongoDB
+    filter_val = {
+        "$or": [
+            {"title": {"$regex": q, "$options": "i"}},
+            {"artist": {"$regex": q, "$options": "i"}}
+        ]
+    }
+
+    result = crud.get_all("tracks", filter=filter_val, limit=20)
+    return result
 
 # ====================
 # POST / PUT / DELETE
