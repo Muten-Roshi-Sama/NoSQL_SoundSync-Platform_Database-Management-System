@@ -41,24 +41,26 @@ def count_instances(collection_name : str, filter: str = Query(None, description
     return {"count": count}
 
 
-@router.get("/tracks/search")
-def search_tracks(q: str = Query(..., min_length=1, description="Texte de recherche")):
-    """
-    Recherche partielle dans les titres et artistes.
-    """
-    if not q:
-        return {"items": [], "total": 0}
 
-    # Regex insensible à la casse pour MongoDB
-    filter_val = {
-        "$or": [
-            {"title": {"$regex": q, "$options": "i"}},
-            {"artist": {"$regex": q, "$options": "i"}}
-        ]
-    }
+#TODO:   REDUNDANT  ------> use get_all instead
+# @router.get("/tracks/search")
+# def search_tracks(q: str = Query(..., min_length=1, description="Texte de recherche")):
+#     """
+#     Recherche partielle dans les titres et artistes.
+#     """
+#     if not q:
+#         return {"items": [], "total": 0}
 
-    result = crud.get_all("tracks", filter=filter_val, limit=20)
-    return result
+#     # Regex insensible à la casse pour MongoDB
+#     filter_val = {
+#         "$or": [
+#             {"title": {"$regex": q, "$options": "i"}},
+#             {"artist": {"$regex": q, "$options": "i"}}
+#         ]
+#     }
+
+#     result = crud.get_all("tracks", filter=filter_val, limit=20)
+#     return result
 
 # ====================
 # POST / PUT / DELETE
