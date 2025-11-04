@@ -39,7 +39,6 @@ export async function getAll(collection, { filter, sort, projection, skip = 0, l
   return await res.json(); // { items, total, skip, limit }
 }
 
-
 export async function getByField(collection, field, value, { projection, skip = 0, limit = 50 } = {}) {
   const params = [];
   if (projection) params.push(`projection=${encodeURIComponent(JSON.stringify(projection))}`);
@@ -59,6 +58,23 @@ export async function countDocuments(collection, filter) {
   const res = await fetch(url);
   return await res.json(); // { count }
 }
+
+
+export async function getFieldFromAll(collection, field) {
+  /// get all distinct values for a field within a specific collection
+  //
+  const url = `${API_BASE}/crud/meta/get_field_from_all/${encodeURIComponent(collection)}/${encodeURIComponent(field)}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const msg = res.status === 404 ? `Collection '${collection}' not found` : `Failed to fetch field values (${res.status})`;
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  // Full payload is: { collection, field, count, values }
+  return data.values || [];
+}
+
+
 
 
 // ----------- POST / PUT / DELETE ----------
@@ -87,6 +103,18 @@ export async function deleteDocument(collection, id) {
   const res = await fetch(url, { method: 'DELETE' });
   return await res.json(); // { deleted, message }
 }
+
+// ------------ Meta -------------
+export async function listCollectionNames() {
+  const url = `${API_BASE}/crud/meta/list_collection_names`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch collection names (${res.status})`);
+  const data = await res.json();
+  return data.collections || [];
+}
+
+
+
 
 
 // ========== Implementations ==========
@@ -124,30 +152,24 @@ export async function registerUser(formData) {
   return await res.json();
 }
 
-export async function searchTracks(query) {
-  /// use getAll s.t. : GET /crud/tracks?filter={"$or":[{"title":{"$regex":"Miles","$options":"i"}},{"artist":{"$regex":"Miles","$options":"i"}}]}&limit=20
-  ///
-  if (!query) return [];
-  // Build the MongoDB regex filter for case-insensitive search
-  const filter = {
-    "$or": [
-      { "title": { "$regex": query, "$options": "i" } },
-      { "artist": { "$regex": query, "$options": "i" } }
-    ]
-  };
-
-  // Use generic getAll + filter
-  const result = await getAll('tracks', { filter, limit: 20 });
-  
-  return result.items || [];
-}
-
 // export async function searchTracks(query) {
+//   /// use getAll s.t. : GET /crud/tracks?filter={"$or":[{"title":{"$regex":"Miles","$options":"i"}},{"artist":{"$regex":"Miles","$options":"i"}}]}&limit=20
+//   ///
 //   if (!query) return [];
-//   const res = await fetch(`${API_BASE}/tracks/search?q=${encodeURIComponent(query)}`);
-//   const data = await res.json();
-//   return data.items || [];
+//   // Build the MongoDB regex filter for case-insensitive search
+//   const filter = {
+//     "$or": [
+//       { "title": { "$regex": query, "$options": "i" } },
+//       { "artist": { "$regex": query, "$options": "i" } }
+//     ]
+//   };
+
+//   // Use generic getAll + filter
+//   const result = await getAll('tracks', { filter, limit: 20 });
+  
+//   return result.items || [];
 // }
+
 
 
 

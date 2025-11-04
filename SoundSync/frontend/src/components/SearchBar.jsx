@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 // import { searchTracks } from "../services/api";
-import { getAll } from "../services/api";
+import { getAll, getFieldFromAll } from "../services/api";
 
 // ----------------------------------------------------------------------
 // Core Features to Implement
@@ -33,32 +33,51 @@ import { getAll } from "../services/api";
 
 
 
-
-
-
-
-
-
-
-
 export default function SearchBar({ onResults }) {
   const [query, setQuery] = useState("");
-  // const [genre, setGenre] = useState("");
+  const [genre, setGenre] = useState("");
+  const [genreOptions, setGenreOptions] = useState([]);
 
+  // Load genres list to populate picker.
+  useEffect(() => {
+    (async () => {
+      try {
+        const values = await getFieldFromAll("tracks", "genre");
+        setGenreOptions(values || []);
+      } catch (e) {
+        console.error("Failed to load genres:", e);
+        setGenreOptions([]);
+      }
+    })();
+  }, []);
+
+
+  // Construct Search Filter
   useEffect(() => {
     const fetchTracks = async () => {
-      // Build filter only if there's a query
-      let filter = null;
+      const parts = [];
+
+      // 1. Text search (case-insensitive => Build regex filter)
       if (query) {
-        filter = {
+        parts.push({
           "$or": [
             { "title": { "$regex": query, "$options": "i" } },
             { "artist": { "$regex": query, "$options": "i" } }
           ]
-        };
+        });
       }
       
-      // CRUD
+      // 2. Genre Filter
+      if (genre) { parts.push({ "genre": genre }); }
+      const filter =
+        parts.length === 0 ? null : parts.length === 1 ? parts[0] : { "$and": parts };
+
+      // 3. Sorting
+
+      // 4. Limit Control
+      // 5. Pagination
+
+      // ====== CRUD =======
       const result = await getAll('tracks', { filter, limit: 20 });
       
       // Extract items array and pass to parent
@@ -67,17 +86,31 @@ export default function SearchBar({ onResults }) {
 
     const delayDebounce = setTimeout(fetchTracks, 300);
     return () => clearTimeout(delayDebounce);
-  }, [query, onResults]);
+  }, [query, genre, onResults]);
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 flex gap-3 items-center">
       <input
         type="text"
-        placeholder="Rechercher un titre..."
+        placeholder="Rechercher..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full p-2 rounded bg-neutral-800 text-white"
+        className="flex-1 p-2 rounded bg-neutral-800 text-white"
       />
+
+      <select
+        value={genre}
+        onChange={(e) => setGenre(e.target.value)}
+        className="p-2 rounded bg-neutral-800 text-white"
+        title="Filtrer par genre"
+      >
+        <option value="">Tous genres</option>
+        {genreOptions.map((g) => (
+          <option key={g} value={g}>{g}</option>
+        ))}
+      </select>
+      
+
     </div>
   );
 }

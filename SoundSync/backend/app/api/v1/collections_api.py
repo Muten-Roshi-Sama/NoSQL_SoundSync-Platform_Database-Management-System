@@ -6,9 +6,16 @@ import json
 router = APIRouter()
 
 
-# ====================
-# GET
-# ====================
+
+# ========= Create / Read =========
+@router.post("/{collection_name}")
+def create_instance(collection_name : str, document_data: dict):
+    """Create a new document in the collection."""
+    doc_id = crud.create_one(collection_name, document_data)
+    return {"id": doc_id, "message": f"Document created in {collection_name}"}
+
+
+# ========= Read ============
 @router.get("/{collection_name}")
 def get_all(
     collection_name: str,
@@ -40,37 +47,19 @@ def count_instances(collection_name : str, filter: str = Query(None, description
     count = crud.count_documents(collection_name, filter)
     return {"count": count}
 
+@router.get("/meta/get_field_from_all/{collection}/{field}")
+def get_field_from_all(collection: str, field: str):
+    """
+    Return all distinct values for a given field in the specified collection.
+    """
+    values = crud.get_field_from_all(collection, field)
+    if values is None:
+        raise HTTPException(status_code=404, detail=f"Collection '{collection}' not found")
+    return {"collection": collection, "field": field, "count": len(values), "values": values}
 
 
-#TODO:   REDUNDANT  ------> use get_all instead
-# @router.get("/tracks/search")
-# def search_tracks(q: str = Query(..., min_length=1, description="Texte de recherche")):
-#     """
-#     Recherche partielle dans les titres et artistes.
-#     """
-#     if not q:
-#         return {"items": [], "total": 0}
 
-#     # Regex insensible à la casse pour MongoDB
-#     filter_val = {
-#         "$or": [
-#             {"title": {"$regex": q, "$options": "i"}},
-#             {"artist": {"$regex": q, "$options": "i"}}
-#         ]
-#     }
-
-#     result = crud.get_all("tracks", filter=filter_val, limit=20)
-#     return result
-
-# ====================
-# POST / PUT / DELETE
-# ====================
-@router.post("/{collection_name}")
-def create_instance(collection_name : str, document_data: dict):
-    """Create a new document in the collection."""
-    doc_id = crud.create_one(collection_name, document_data)
-    return {"id": doc_id, "message": f"Document created in {collection_name}"}
-
+# ========= Update / Delete =========
 @router.put("/{collection_name}/by/{id}")
 def update_instance(collection_name : str, id: str, updates: dict):
     """Update a document by ID."""
@@ -88,20 +77,25 @@ def delete_instance(collection_name : str, id: str):
     return {"deleted": deleted, "message": "Document {id} from {collection_name} deleted"}
 
 
+# ========= Meta =========
+@router.get("/meta/list_collection_names")
+def list_collection_names():
+    """
+    Return all collection names in the current MongoDB database.
+    """
+    names = crud.list_collection_names()
+    return {"collections": names}
+
+
+
+
+
+
+
 
 
 
 # pour déconnecter la db et le cache : close_services()
-
-
-
-
-
-
-
-
-
-
 
 # ==========================================
 # USAGE EXAMPLES
