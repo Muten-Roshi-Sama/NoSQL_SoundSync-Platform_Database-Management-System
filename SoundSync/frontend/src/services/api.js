@@ -1,4 +1,23 @@
+// src/services/api.js
+
+
+// BACKEND Paths :
+      //-----------------------------------CRUD--------------------------------------------
+      // GET      /crud/{collection}                     : List documents (supports filter, sort, projection, skip, limit)
+      // GET      /crud/{collection}/by/{field}/{value}  : Get document(s) by field
+      // GET      /crud/{collection}/count               : Count documents (supports filter)
+      // GET      /crud/tracks/search                    : Search tracks by title/artist
+      // POST     /crud/{collection}                     : Create document
+      // PUT      /crud/{collection}/by/{id}             : Update document by ID
+      // DELETE   /crud/{collection}/by/{id}             : Delete document by ID
+      //-----------------------------------Others--------------------------------------------
+      // POST     /api/init_db                           :  Initialize db with data folders
+      // POST     /api/clean_db                          :  Deep clean db.
+
+
 const API_BASE = "http://127.0.0.1:8000/crud";
+
+
 
 export async function loginUser(identifier, password) {
   // 1️⃣ Essayer via username
