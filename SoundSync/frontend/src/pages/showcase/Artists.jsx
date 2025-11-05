@@ -13,8 +13,8 @@ export default function Artists() {
         collection="artists"
         onResults={setArtists}
         options={{
-          searchFields: ["name", "genre"],
-          filterFields: [{ name: "country", label: "Pays" }],
+          searchFields: ["username",  "genre"],
+          filterFields: [{ name: "genre", label: "genre" }],
           limit: 20,
         }}
       />
@@ -25,8 +25,9 @@ export default function Artists() {
             <div className="artist-photo bg-neutral-800 rounded-lg mb-3">
               👤
             </div>
-            <p className="font-semibold truncate">{artist.name}</p>
+            <p className="font-semibold truncate">{artist.username}</p>
             <p className="text-sm text-gray-400 truncate">{artist.genre}</p>
+            <p className="text-sm text-gray-400 truncate">{artist.biography}</p>
           </div>
         ))}
       </div>
