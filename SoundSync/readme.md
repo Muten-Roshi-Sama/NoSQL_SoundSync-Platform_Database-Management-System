@@ -58,59 +58,104 @@ soundsync/
 └─ README.md
 
 ```
-
-Parfait ✅ — on va poser une **structure claire et extensible** pour ton backend FastAPI.
-C’est une architecture **modulaire**, **propre** et **scalable**, inspirée des bonnes pratiques du monde pro (ex : FastAPI + MongoDB + Redis).
-
 ---
 
 ## 📂 Structure complète du backend
 
 ```
-backend/
+soundsync/
+├── backend/
+│ ├── app/
+│ │ ├── api/
+│ │ │ └── v1/
+│ │ │ ├── collections_api.py # Endpoints CRUD génériques
+│ │ │ ├── health_api.py # Endpoint de test API
+│ │ │ ├── init_db_api.py # Initialisation/clean de la DB
+│ │ │ └── init.py
+│ │ │
+│ │ ├── core/
+│ │ │ ├── settings.py # Configuration et variables d'environnement
+│ │ │ ├── events.py # Connexions MongoDB / Redis
+│ │ │ └── init.py
+│ │ │
+│ │ ├── db/
+│ │ │ ├── collections.py # Définition des collections Mongo
+│ │ │ ├── crud.py # Opérations CRUD génériques
+│ │ │ ├── mongo.py # Connexion MongoDB
+│ │ │ ├── redis.py # Connexion Redis
+│ │ │ └── init.py
+│ │ │
+│ │ ├── data/
+│ │ │ ├── Artists/ # Données mock pour initialisation
+│ │ │ └── Users/
+│ │ │
+│ │ ├── models/
+│ │ │ ├── playlist.py
+│ │ │ ├── track.py
+│ │ │ └── user.py
+│ │ │
+│ │ ├── services/
+│ │ │ ├── artist_service.py
+│ │ │ ├── playlist_service.py
+│ │ │ ├── track_service.py
+│ │ │ ├── user_service.py
+│ │ │ └── init.py
+│ │ │
+│ │ ├── utils/
+│ │ │ ├── auth.py # Authentification / JWT
+│ │ │ └── redis_cache.py # Helpers pour Redis
+│ │ │
+│ │ ├── static/
+│ │ │ └── audio/ # Fichiers audio mock
+│ │ │
+│ │ ├── tests/
+│ │ │ ├── test_collections_api.py
+│ │ │ ├── test_users_api.py
+│ │ │ ├── conftest.py
+│ │ │ └── utils/
+│ │ │
+│ │ ├── main.py # Point d’entrée FastAPI (uvicorn app.main:app)
+│ │ └── init.py
+│ │
+│ ├── Dockerfile
+│ └── requirements.txt
 │
-├── app/
-│   ├── api/
-│   │   └── v1/
-│   │       ├── __init__.py
-│   │       ├── health.py           # Endpoint de test
-│   │       └── users.py            # Exemple de route (users)
-│   │
-│   ├── core/
-│   │   ├── __init__.py
-│   │   ├── config.py               # Configuration générale (env vars)
-│   │   └── events.py               # Connexions à Mongo et Redis
-│   │
-│   ├── db/
-│   │   ├── __init__.py
-│   │   ├── mongo.py                # Connexion MongoDB
-│   │   └── redis_client.py         # Connexion Redis
-│   │
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── user_model.py           # Modèle Pydantic pour User
-│   │
-│   ├── services/
-│   │   ├── __init__.py
-│   │   └── user_service.py         # Logique métier (users)
-│   │
-│   ├── main.py                     # Point d’entrée FastAPI
-│   └── __init__.py
+├── frontend/
+│ ├── src/
+│ │ ├── components/ # Composants réutilisables (Navbar, Player, etc.)
+│ │ ├── context/ # Contexte React (AuthContext)
+│ │ ├── pages/ # Pages principales (Home, Login, Artists, etc.)
+│ │ ├── routes/ # Définition des routes React
+│ │ ├── services/ # API frontend → backend
+│ │ └── static/css/ # Feuilles de style spécifiques par page
+│ │
+│ ├── public/
+│ ├── eslint.config.js
+│ ├── vite.config.js
+│ ├── package.json
+│ ├── package-lock.json
+│ └── index.html
 │
-└── requirements.txt
+├── docker-compose.yml
+└── readme.md
 ```
 
 ---
 
-## 🧠 Explication des dossiers
+## 🧠 Explication des dossiers principaux
 
-| Dossier       | Rôle                                                                                                       | Exemple                              |
-| ------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| **api/**      | Routes de l’API (v1, v2, etc.). Contient les endpoints que les clients (frontend, mobile, etc.) appellent. | `/api/v1/users`, `/api/v1/health`    |
-| **core/**     | Fichiers centraux : configuration, événements de démarrage, variables d’environnement.                     | Connexion à Mongo/Redis au lancement |
-| **db/**       | Gestion directe des bases de données et des connexions.                                                    | Mongo client, Redis client           |
-| **models/**   | Définitions des schémas Pydantic et/ou ORM.                                                                | `User`, `Playlist`, `Song`, etc.     |
-| **services/** | Logique métier : fonctions de traitement, appels DB, validations.                                          | Création utilisateur, login, etc.    |
+| Dossier / Fichier             | Rôle                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| **backend/app/api/**          | Contient les routes FastAPI (v1, healthcheck, init_db, etc.)                             |
+| **backend/app/core/**         | Paramètres, gestion des événements, configuration d’environnement                         |
+| **backend/app/db/**           | Gestion des connexions et opérations sur MongoDB / Redis                                 |
+| **backend/app/services/**     | Logique métier (users, playlists, artistes, etc.)                                        |
+| **backend/app/models/**       | Schémas Pydantic pour validation et typage des données                                   |
+| **backend/app/data/**         | Données JSON pour initialiser la base (mock data)                                        |
+| **backend/app/utils/**        | Fonctions utilitaires : auth JWT, cache Redis                                            |
+| **backend/app/tests/**        | Tests unitaires et d’intégration (Pytest)                                                |
+| **frontend/src/**             | Code source React (pages, composants, logique front)                                     |
+| **frontend/src/static/css/**  | Styles CSS par page ou composant                                                         |
 
 ---
 
@@ -180,13 +225,6 @@ docker compose down
 
 ```bash
 docker compose up --build
-```
-
-### Voir les logs :
-
-```bash
-docker compose logs -f backend
-docker compose logs -f frontend
 ```
 
 ## DB manipulations :
