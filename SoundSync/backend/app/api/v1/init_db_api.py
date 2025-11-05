@@ -36,19 +36,3 @@ def clean_db():
     }
 
 
-# TODO: fix crud function first
-# app.route("/create_instance")
-# def read_instance():
-#     collection = "artists"
-#     sample = "artist2"
-#     db.crud.read_instance(collection, sample)
-
-
-# init collections
-
-
-# import json to db
-
-
-
-

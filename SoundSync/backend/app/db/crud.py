@@ -1,10 +1,10 @@
 # db/crud.py
 
 # from flask import jsonify
-from app.db.collections import *
 from app.db.mongo import get_mongo_database
 from app.db.redis import get_redis_client
 import json
+from bson import ObjectId
 
 MC = get_mongo_database()
 REDIS = get_redis_client()
