@@ -1,62 +1,41 @@
-import { useState } from "react";
-import SearchBar from "../components/SearchBar";
-import Player from "../components/Player";
+import { Link } from "react-router-dom";
+import "../static/css/Home.css";
 
 export default function Home() {
-  const [tracks, setTracks] = useState([]);
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handleTrackClick = (track, index) => {
-    setCurrentTrack(track);
-    setCurrentIndex(index);
-  };
-
-  const handleNext = () => {
-    if (tracks.length === 0) return;
-    const nextIndex = (currentIndex + 1) % tracks.length;
-    setCurrentTrack(tracks[nextIndex]);
-    setCurrentIndex(nextIndex);
-  };
-
-  const handlePrev = () => {
-    if (tracks.length === 0) return;
-    const prevIndex = (currentIndex - 1 + tracks.length) % tracks.length;
-    setCurrentTrack(tracks[prevIndex]);
-    setCurrentIndex(prevIndex);
-  };
-
   return (
-    <div className="min-h-screen bg-[#121212] text-white p-8 pb-32">
-      <h1 className="text-3xl font-bold mb-6">
-        Découvre de nouveaux sons 🔥
-      </h1>
+    <div className="home-container">
+      <section className="hero">
+        <h1 className="hero-title">Bienvenue sur <span>Soundsync</span> 🎧</h1>
+        <p className="hero-subtitle">
+          Découvre, écoute et partage tes sons préférés dans un univers immersif.
+        </p>
 
-      <SearchBar onResults={setTracks} />
+        <div className="hero-buttons">
+          <Link to="/songs" className="btn btn-primary">
+            🔍 Explorer la musique
+          </Link>
+          <Link to="/login" className="btn btn-secondary">
+            Se connecter
+          </Link>
+        </div>
+      </section>
 
-      <div className="tracks-grid">
-  {tracks.map((track, index) => (
-    <div
-      key={track._id}
-      onClick={() => handleTrackClick(track, index)}
-      className={`track-card ${currentTrack?._id === track._id ? "active" : ""} cursor-pointer`}
-    >
-      <div className="h-36 bg-neutral-800 rounded-lg mb-3 flex items-center justify-center">
-        🎵
-      </div>
-      <p className="font-semibold truncate">{track.title}</p>
-      <p className="text-sm text-gray-400 truncate">
-        {track.artist || track.artist_id}
-      </p>
-    </div>
-  ))}
-</div>
+      <section className="features">
+        <div className="feature-card">
+          <h3>🎶 Artistes</h3>
+          <p>Découvre des talents du monde entier et suis tes artistes préférés.</p>
+        </div>
 
-      <Player
-        currentTrack={currentTrack}
-        onNext={handleNext}
-        onPrev={handlePrev}
-      />
+        <div className="feature-card">
+          <h3>❤️ Favoris</h3>
+          <p>Crée ta bibliothèque personnalisée avec tes morceaux préférés.</p>
+        </div>
+
+        <div className="feature-card">
+          <h3>🎧 Playlists</h3>
+          <p>Assemble les morceaux que tu aimes dans des playlists uniques.</p>
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,0 +1,125 @@
+.songs-page {
+  background-color: #121212;
+  color: white;
+  min-height: 100vh;
+  padding: 2rem 3rem 8rem; /* espace pour le Player fixe */
+}
+
+/* ----------- TITRE ----------- */
+.songs-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #fff;
+}
+
+/* ----------- BARRE DE RECHERCHE ----------- */
+.songs-page .search-bar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.songs-page input[type="text"] {
+  background-color: #181818;
+  border: none;
+  color: white;
+  width: 100%;
+  max-width: 500px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.songs-page input[type="text"]:focus {
+  background-color: #222;
+  box-shadow: 0 0 8px #1db954;
+}
+
+/* ----------- GRILLE DES MORCEAUX ----------- */
+.tracks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* ----------- CARTE DE MUSIQUE ----------- */
+.track-card {
+  background-color: #181818;
+  border-radius: 10px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.track-card:hover {
+  background-color: #222;
+  transform: translateY(-4px);
+}
+
+.track-card.active {
+  border: 2px solid #1db954;
+  background-color: #1a1a1a;
+}
+
+.track-card .h-36 {
+  height: 9rem;
+  background-color: #262626;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+/* ----------- TITRE + ARTISTE ----------- */
+.track-card p {
+  margin: 0;
+}
+
+.track-card .font-semibold {
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+.track-card .text-gray-400 {
+  color: #b3b3b3;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* ----------- SCROLL ----------- */
+.songs-page {
+  scrollbar-width: thin;
+  scrollbar-color: #1db954 #121212;
+}
+
+.songs-page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.songs-page::-webkit-scrollbar-thumb {
+  background-color: #1db954;
+  border-radius: 10px;
+}
+
+/* ----------- RESPONSIVE ----------- */
+@media (max-width: 768px) {
+  .songs-page {
+    padding: 1.5rem;
+  }
+
+  .songs-title {
+    font-size: 1.6rem;
+  }
+
+  .tracks-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}

@@ -121,12 +121,12 @@ export async function listCollectionNames() {
 
 export async function loginUser(identifier, password) {
   // 1️⃣ Essayer via username
-  let res = await fetch(`${API_BASE}/users/by/username/${identifier}`);
+  let res = await fetch(`${API_BASE}/crud/users/by/username/${identifier}`);
   let data = await res.json();
 
   // Si 404, on tente via email
   if (res.status === 404) {
-    res = await fetch(`${API_BASE}/users/by/email/${identifier}`);
+    res = await fetch(`${API_BASE}/crud/users/by/email/${identifier}`);
     data = await res.json();
   }
 

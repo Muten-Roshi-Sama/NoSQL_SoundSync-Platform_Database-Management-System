@@ -1,26 +1,50 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "../static/css/Navbar.css"; // chemin vers ton fichier CSS
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
   return (
-    <nav className="flex justify-between items-center p-4 bg-neutral-900 text-white">
-      <Link to="/" className="text-xl font-bold">Soundsync</Link>
+    <nav className="navbar">
+      <div className="navbar-left">
+        <Link to="/" className="navbar-logo">
+          🎧 Soundsync
+        </Link>
 
-      <div className="flex items-center gap-4">
+        <div className="navbar-links">
+          <Link
+            to="/artists"
+            className={location.pathname === "/artists" ? "active" : ""}
+          >
+            Artists
+          </Link>
+          <Link
+            to="/favorites"
+            className={location.pathname === "/favorites" ? "active" : ""}
+          >
+            Favorites
+          </Link>
+          <Link
+            to="/playlists"
+            className={location.pathname === "/playlists" ? "active" : ""}
+          >
+            Playlists
+          </Link>
+        </div>
+      </div>
+
+      <div className="navbar-right">
         {user ? (
           <>
-            <span>👤 {user.username}</span>
-            <button
-              onClick={logout}
-              className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
-            >
+            <span className="navbar-user">👤 {user.username}</span>
+            <button onClick={logout} className="navbar-btn logout">
               Déconnexion
             </button>
           </>
         ) : (
-          <Link to="/login" className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded">
+          <Link to="/login" className="navbar-btn login">
             Connexion
           </Link>
         )}
