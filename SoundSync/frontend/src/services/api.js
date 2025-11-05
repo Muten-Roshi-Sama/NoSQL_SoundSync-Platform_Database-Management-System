@@ -104,6 +104,17 @@ export async function deleteDocument(collection, id) {
   return await res.json(); // { deleted, message }
 }
 
+
+// Supprimer un document selon un filtre (ex: like pour un user + track)
+export async function deleteDocumentByFilter(collection, filter) {
+  // Récupérer le document correspondant au filtre
+  const res = await getAll(collection, { filter, limit: 1 });
+  if (res.items.length === 0) return { deleted: false, message: "Rien à supprimer" };
+  const id = res.items[0]._id;
+  return await deleteDocument(collection, id);
+}
+
+
 // ------------ Meta -------------
 export async function listCollectionNames() {
   const url = `${API_BASE}/crud/meta/list_collection_names`;
@@ -142,7 +153,7 @@ export async function loginUser(identifier, password) {
 
 
 export async function registerUser(formData) {
-  const res = await fetch(`${API_BASE}/users/`, {
+  const res = await fetch(`${API_BASE}/crud/users/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
@@ -152,23 +163,6 @@ export async function registerUser(formData) {
   return await res.json();
 }
 
-// export async function searchTracks(query) {
-//   /// use getAll s.t. : GET /crud/tracks?filter={"$or":[{"title":{"$regex":"Miles","$options":"i"}},{"artist":{"$regex":"Miles","$options":"i"}}]}&limit=20
-//   ///
-//   if (!query) return [];
-//   // Build the MongoDB regex filter for case-insensitive search
-//   const filter = {
-//     "$or": [
-//       { "title": { "$regex": query, "$options": "i" } },
-//       { "artist": { "$regex": query, "$options": "i" } }
-//     ]
-//   };
-
-//   // Use generic getAll + filter
-//   const result = await getAll('tracks', { filter, limit: 20 });
-  
-//   return result.items || [];
-// }
 
 
 

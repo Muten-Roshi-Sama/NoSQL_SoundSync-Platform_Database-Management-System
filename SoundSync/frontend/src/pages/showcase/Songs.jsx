@@ -2,11 +2,13 @@ import { useState } from "react";
 import SearchBar from "../../components/SearchBar";
 import Player from "../../components/Player";
 import "../../static/css/Songs.css";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Songs() {
   const [tracks, setTracks] = useState([]);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { user } = useAuth();
 
   const handleTrackClick = (track, index) => {
     setCurrentTrack(track);
@@ -60,7 +62,7 @@ export default function Songs() {
         ))}
       </div>
 
-      <Player currentTrack={currentTrack} onNext={handleNext} onPrev={handlePrev} />
+      <Player currentTrack={currentTrack} onNext={handleNext} onPrev={handlePrev} user={user} /> 
     </div>
   );
 }
