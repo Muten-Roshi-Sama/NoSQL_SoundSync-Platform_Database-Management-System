@@ -8,6 +8,7 @@ import Songs from "../pages/showcase/Songs";
 import Artists from "../pages/showcase/Artists";
 import Favorites from "../pages/showcase/Favorites";
 import Playlists from "../pages/showcase/Playlists";
+import AccountOverview from "../pages/accounts/accountOverview";
 
 export default function AppRoutes() {
   return (
