@@ -94,9 +94,12 @@ def create_one(collection_name: str, data: Dict[str, Any]) -> str:
     """
     Insert one document; returns inserted id as string.
     """
-    coll = MC[collection_name]
-    res = coll.insert_one(data)
-    return str(res.inserted_id)
+    if collection_name in list_collection_names(): 
+        coll = MC[collection_name]
+        res = coll.insert_one(data)
+        return str(res.inserted_id)
+    else:
+        return "Collection doesn't exist. Try again."
 
 
 # --------- Read --------------

@@ -131,21 +131,36 @@ export async function listCollectionNames() {
 // ========== Implementations ==========
 
 export async function loginUser(identifier, password) {
-  // 1️⃣ Essayer via username
-  let res = await fetch(`${API_BASE}/crud/users/by/username/${identifier}`);
-  let data = await res.json();
+  const collections = ['users', 'artists'];
+  const fields = ['username', 'email'];
+  
+  let user = null;
 
-  // Si 404, on tente via email
-  if (res.status === 404) {
-    res = await fetch(`${API_BASE}/crud/users/by/email/${identifier}`);
-    data = await res.json();
+  // 1️⃣ Try each collection and each field until we find a match
+  for (const collection of collections) {
+    for (const field of fields) {
+      try {
+        const res = await fetch(`${API_BASE}/crud/${collection}/by/${field}/${identifier}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.document) {
+            user = data.document;
+            break; // Found user, exit inner loop
+          }
+        }
+      } catch (error) {
+        // Continue to next field/collection
+        print(error)
+        continue;
+      }
+    }
+    if (user) break; // Found user, exit outer loop
   }
 
-  // 2️⃣ Vérifier qu'on a bien un document
-  const user = data.document;
+  // 2️⃣ Check if user was found
   if (!user) throw new Error("Utilisateur introuvable");
 
-  // 3️⃣ Vérifier le mot de passe
+  // 3️⃣ Verify password
   if (user.password !== password) throw new Error("Mot de passe incorrect");
 
   return user;
@@ -153,11 +168,23 @@ export async function loginUser(identifier, password) {
 
 
 export async function registerUser(formData) {
-  const res = await fetch(`${API_BASE}/crud/users/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  });
+  let res;
+
+  if (formData.role == "user"){
+    res = await fetch(`${API_BASE}/crud/users/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+  }
+  else if (formData.role == "artist"){
+    res = await fetch(`${API_BASE}/crud/artists/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+  }
+    
 
   if (!res.ok) throw new Error("Erreur lors de la création du compte");
   return await res.json();

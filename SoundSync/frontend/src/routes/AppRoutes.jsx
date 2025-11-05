@@ -19,6 +19,11 @@ export default function AppRoutes() {
         <Route path="/Artists" element={<Artists />} />
         <Route path="/player/:id" element={<Player />} />
       </Route>
+
+
+
+
+      
     </Routes>
   );
 }
