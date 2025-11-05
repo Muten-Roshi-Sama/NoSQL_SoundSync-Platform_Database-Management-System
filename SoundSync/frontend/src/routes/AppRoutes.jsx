@@ -9,6 +9,7 @@ import Artists from "../pages/showcase/Artists";
 import Favorites from "../pages/showcase/Favorites";
 import Playlists from "../pages/showcase/Playlists";
 import AccountOverview from "../pages/accounts/accountOverview";
+import AccountEdit from "../pages/accounts/accountEdit";
 
 export default function AppRoutes() {
   return (
@@ -23,7 +24,8 @@ export default function AppRoutes() {
         <Route path="/Favorites" element={<Favorites />} />
         <Route path="/Playlists" element={<Playlists />} />
         <Route path="/player/:id" element={<Player />} />
-        <Route path="/accountOverview" element={<AccountOverview />} />
+        <Route path="/account" element={<AccountOverview />} />
+        <Route path="/account/edit" element={<AccountEdit />} />
       </Route>
 
 

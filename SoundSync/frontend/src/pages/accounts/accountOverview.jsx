@@ -211,7 +211,7 @@ export default function AccountOverview() {
 
           {/* Actions */}
           <div className="account-actions">
-            <button onClick={() => navigate("/account/edit")} className="btn-edit">
+            <button onClick={() => navigate("edit")} className="btn-edit">
               Modifier mon profil
             </button>
             <button onClick={handleLogout} className="btn-logout">
