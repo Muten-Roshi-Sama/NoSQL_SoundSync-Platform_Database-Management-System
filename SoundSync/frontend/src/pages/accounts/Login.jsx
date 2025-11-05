@@ -2,6 +2,7 @@ import { useState } from "react";
 import { loginUser } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import "../../static/css/Login.css";
 
 export default function Login() {
   const [identifier, setIdentifier] = useState("");
@@ -22,30 +23,65 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-white bg-neutral-950">
-      <h1 className="text-2xl mb-4 font-bold">Connexion</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-64">
-        <input
-          type="text"
-          placeholder="Nom d'utilisateur ou e-mail"
-          value={identifier}
-          onChange={(e) => setIdentifier(e.target.value)}
-          className="p-2 rounded bg-neutral-800"
-        />
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="p-2 rounded bg-neutral-800"
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button className="bg-green-600 hover:bg-green-700 py-2 rounded">Se connecter</button>
-      </form>
-      <p className="mt-3 text-sm">
-        Pas encore de compte ?{" "}
-        <Link to="/register" className="text-blue-400 hover:underline">Inscris-toi</Link>
-      </p>
+    <div className="login-container">
+      <div className="login-card">
+        
+        {/* En-tête */}
+        <div className="login-header">
+          <h1>Connexion</h1>
+          <p>Bienvenue sur SoundSync 🎵</p>
+        </div>
+
+        {/* Formulaire */}
+        <form onSubmit={handleSubmit} className="login-form">
+          
+          {/* Identifiant */}
+          <div className="form-group">
+            <label htmlFor="identifier">Nom d'utilisateur ou e-mail</label>
+            <input
+              id="identifier"
+              type="text"
+              placeholder="Entrez votre identifiant"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Mot de passe */}
+          <div className="form-group">
+            <label htmlFor="password">Mot de passe</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Entrez votre mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Message d'erreur */}
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
+          {/* Bouton */}
+          <button type="submit" className="login-submit">
+            Se connecter
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div className="login-footer">
+          <p>
+            Pas encore de compte ?{" "}
+            <Link to="/register">Inscris-toi</Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

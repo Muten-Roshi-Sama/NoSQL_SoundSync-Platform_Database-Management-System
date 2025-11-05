@@ -18,13 +18,7 @@
 const API_BASE = "http://127.0.0.1:8000";
 
 
-
-
-
-
-
 // ======= General CRUD Functions =======
-
 // ---------- GET ----------
 export async function getAll(collection, { filter, sort, projection, skip = 0, limit = 50 } = {}) {
   const params = [];
@@ -45,7 +39,7 @@ export async function getByField(collection, field, value, { projection, skip = 
   if (skip) params.push(`skip=${skip}`);
   if (limit) params.push(`limit=${limit}`);
   //
-  const url = `${API_BASE}/crud/${collection}/by/${field}/${value}?${params.join('&')}`;
+  const url = `${API_BASE}/crud/${encodeURIComponent(collection)}/by/${encodeURIComponent(field)}/${encodeURIComponent(value)}?${params.join('&')}`;
   const res = await fetch(url);
   return await res.json(); // { document } or { items, total, ... }
 }
@@ -129,35 +123,57 @@ export async function listCollectionNames() {
 
 
 // ========== Implementations ==========
-
+// Always-200 finder: tries fields in order and returns first match or null
+async function findOneSilent(collection, identifier, fields) {
+  for (const field of fields) {
+    const res = await getAll(collection, { filter: { [field]: identifier }, limit: 1 });
+    const item = res?.items?.[0];
+    if (item) return item;
+  }
+  return null;
+}
 export async function loginUser(identifier, password) {
-  // 1️⃣ Essayer via username
-  let res = await fetch(`${API_BASE}/crud/users/by/username/${identifier}`);
-  let data = await res.json();
+  const emailFirst = identifier.includes('@');
+  const usersFields   = emailFirst ? ['email', 'username'] : ['username', 'email'];
+  const artistsFields = emailFirst ? ['email', 'username'] : ['username', 'email'];
 
-  // Si 404, on tente via email
-  if (res.status === 404) {
-    res = await fetch(`${API_BASE}/crud/users/by/email/${identifier}`);
-    data = await res.json();
+  // 1) Try users
+  let doc = await findOneSilent('users', identifier, usersFields);
+  if (!doc) {
+    // 2) Try artists
+    doc = await findOneSilent('artists', identifier, artistsFields);
+    if (doc) {
+      doc = { ...doc, collection: 'artists', role: 'artist' };
+    }
+  } else {
+    doc = { ...doc, collection: 'users', role: 'user' };
   }
 
-  // 2️⃣ Vérifier qu'on a bien un document
-  const user = data.document;
-  if (!user) throw new Error("Utilisateur introuvable");
-
-  // 3️⃣ Vérifier le mot de passe
-  if (user.password !== password) throw new Error("Mot de passe incorrect");
-
-  return user;
+  if (!doc) throw new Error("Utilisateur introuvable");
+  if (doc.password !== password) throw new Error("Mot de passe incorrect");
+  return doc;
 }
 
 
+
 export async function registerUser(formData) {
-  const res = await fetch(`${API_BASE}/crud/users/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  });
+  let res;
+
+  if (formData.role == "user"){
+    res = await fetch(`${API_BASE}/crud/users/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+  }
+  else if (formData.role == "artist"){
+    res = await fetch(`${API_BASE}/crud/artists/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+  }
+    
 
   if (!res.ok) throw new Error("Erreur lors de la création du compte");
   return await res.json();

@@ -22,7 +22,13 @@ export default function AppRoutes() {
         <Route path="/Favorites" element={<Favorites />} />
         <Route path="/Playlists" element={<Playlists />} />
         <Route path="/player/:id" element={<Player />} />
+        <Route path="/accountOverview" element={<AccountOverview />} />
       </Route>
+
+
+
+
+      
     </Routes>
   );
 }

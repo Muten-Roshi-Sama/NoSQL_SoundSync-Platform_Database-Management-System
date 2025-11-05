@@ -94,9 +94,12 @@ def create_one(collection_name: str, data: Dict[str, Any]) -> str:
     """
     Insert one document; returns inserted id as string.
     """
-    coll = MC[collection_name]
-    res = coll.insert_one(data)
-    return str(res.inserted_id)
+    if collection_name in list_collection_names(): 
+        coll = MC[collection_name]
+        res = coll.insert_one(data)
+        return str(res.inserted_id)
+    else:
+        return "Collection doesn't exist. Try again."
 
 
 # --------- Read --------------
@@ -132,8 +135,14 @@ def get_one_by_field(collection_name: str, field: str, value: Any) -> Optional[D
     Fetch a single document by any field and value.
     """
     coll = MC[collection_name]
+    if field == "_id":
+        try:
+            value = ObjectId(value)
+        except Exception:
+            return None
     doc = coll.find_one({field: value})
     return _to_str_id(doc) if doc else None
+
 def count_documents(
     collection_name: str, 
     filter: Optional[Dict[str, Any]] = None
