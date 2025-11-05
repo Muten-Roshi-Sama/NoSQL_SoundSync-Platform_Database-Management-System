@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Play, Pause, SkipForward, SkipBack, Heart } from "lucide-react";
-import { createDocument, deleteDocumentByFilter, getAll } from "../services/api";
+import { Play, Pause, SkipForward, SkipBack, Heart, X, Plus } from "lucide-react";
+import { createDocument, deleteDocumentByFilter, getAll, updateDocument } from "../services/api";
 import "../static/css/Player.css";
 
 const API_BASE = "http://127.0.0.1:8000";
@@ -9,8 +9,10 @@ export default function Player({ currentTrack, onNext, onPrev, user }) {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-
-  console.log("[Player] Props received:", { currentTrack, user });
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [playlists, setPlaylists] = useState([]);
+  const [selectedPlaylists, setSelectedPlaylists] = useState([]);
 
   const audioSrc = currentTrack
     ? currentTrack.audio_url.startsWith("http")
@@ -18,72 +20,45 @@ export default function Player({ currentTrack, onNext, onPrev, user }) {
       : `${API_BASE}${currentTrack.audio_url}`
     : null;
 
-  // Lecture automatique et check like
+  // Lecture automatique quand on change de piste
   useEffect(() => {
-    console.log("[Player useEffect] currentTrack change:", currentTrack);
-
-    if (!audioRef.current || !currentTrack) {
-      console.log("[Player] audioRef or currentTrack undefined");
-      return;
-    }
-
+    if (!audioRef.current || !currentTrack) return;
     audioRef.current.pause();
     audioRef.current.currentTime = 0;
-    audioRef.current.play().catch(err => {
-      console.error("[Player] play() error:", err);
-    });
+    audioRef.current.play().catch(() => {});
     setIsPlaying(true);
 
     // Vérifier si la musique est likée
-    if (!user) {
-      console.log("[Player] user undefined, skipping like check");
-      return;
-    }
-
+    if (!user) return;
     const checkLike = async () => {
       try {
-        console.log("[Player] Checking if track is liked:", currentTrack._id);
         const res = await getAll("likes", {
-          filter: {
-            user_id: user._id,
-            target_type: "track",
-            target_id: currentTrack._id,
-          },
+          filter: { user_id: user._id, target_type: "track", target_id: currentTrack._id },
           limit: 1,
         });
-        console.log("[Player] Like check result:", res);
         setIsLiked(res.total > 0);
       } catch (err) {
-        console.error("[Player] Error checking like:", err);
+        console.error(err);
       }
     };
-
     checkLike();
   }, [currentTrack, user]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) audioRef.current.pause();
-    else audioRef.current.play().catch(err => console.error("[Player] play() error:", err));
+    else audioRef.current.play().catch(() => {});
     setIsPlaying(!isPlaying);
-    console.log("[Player] togglePlay, isPlaying:", !isPlaying);
   };
 
   const handleLike = async () => {
-    console.log("[Player] handleLike clicked", { currentTrack, user, isLiked });
-
     if (!user) {
-      console.warn("[Player] Cannot like, user undefined");
+      setShowLoginModal(true);
       return;
     }
-    if (!currentTrack) {
-      console.warn("[Player] Cannot like, currentTrack undefined");
-      return;
-    }
-
+    if (!currentTrack) return;
     try {
       if (isLiked) {
-        console.log("[Player] Unliking track:", currentTrack._id);
         await deleteDocumentByFilter("likes", {
           user_id: user._id,
           target_type: "track",
@@ -91,7 +66,6 @@ export default function Player({ currentTrack, onNext, onPrev, user }) {
         });
         setIsLiked(false);
       } else {
-        console.log("[Player] Liking track:", currentTrack._id);
         await createDocument("likes", {
           user_id: user._id,
           target_type: "track",
@@ -101,7 +75,55 @@ export default function Player({ currentTrack, onNext, onPrev, user }) {
         setIsLiked(true);
       }
     } catch (err) {
-      console.error("[Player] Error like/unlike:", err);
+      console.error("Erreur like :", err);
+    }
+  };
+
+  const openPlaylistModal = async () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+    try {
+      const res = await getAll("playlists", { filter: { user_id: user._id }, limit: 50 });
+      setPlaylists(res.items || []);
+      // Pré-remplir les playlists contenant déjà la track
+      const selected = res.items
+        ?.filter(p => p.track_ids?.includes(currentTrack._id))
+        .map(p => p._id) || [];
+      setSelectedPlaylists(selected);
+      setShowPlaylistModal(true);
+    } catch (err) {
+      console.error("Erreur récupération playlists :", err);
+    }
+  };
+
+  const togglePlaylistSelection = (playlistId) => {
+    setSelectedPlaylists(prev => {
+      if (prev.includes(playlistId)) return prev.filter(id => id !== playlistId);
+      return [...prev, playlistId];
+    });
+  };
+
+  const savePlaylists = async () => {
+    try {
+      for (let playlist of playlists) {
+        const shouldInclude = selectedPlaylists.includes(playlist._id);
+        const currentlyIncludes = playlist.track_ids?.includes(currentTrack._id);
+
+        if (shouldInclude && !currentlyIncludes) {
+          await updateDocument("playlists", playlist._id, {
+            track_ids: [...(playlist.track_ids || []), currentTrack._id],
+          });
+        } else if (!shouldInclude && currentlyIncludes) {
+          await updateDocument("playlists", playlist._id, {
+            track_ids: (playlist.track_ids || []).filter(id => id !== currentTrack._id),
+          });
+        }
+      }
+      setShowPlaylistModal(false);
+    } catch (err) {
+      console.error("Erreur mise à jour playlists :", err);
     }
   };
 
@@ -115,6 +137,7 @@ export default function Player({ currentTrack, onNext, onPrev, user }) {
 
   return (
     <div className="player-container">
+      {/* Titre et artiste */}
       <div className="track-info">
         <div className="cover-art">🎵</div>
         <div>
@@ -123,21 +146,22 @@ export default function Player({ currentTrack, onNext, onPrev, user }) {
         </div>
       </div>
 
+      {/* Contrôles */}
       <div className="player-controls">
-        <button onClick={onPrev}>
-          <SkipBack size={24} />
-        </button>
+        <button onClick={onPrev}><SkipBack size={24} /></button>
         <button onClick={togglePlay} className="player-play-btn">
           {isPlaying ? <Pause size={24} /> : <Play size={24} />}
         </button>
-        <button onClick={onNext}>
-          <SkipForward size={24} />
-        </button>
+        <button onClick={onNext}><SkipForward size={24} /></button>
       </div>
 
+      {/* Like + durée + playlist */}
       <div className="player-right">
         <button onClick={handleLike} className="like-btn">
           <Heart size={22} fill={isLiked ? "red" : "none"} stroke={isLiked ? "red" : "white"} />
+        </button>
+        <button onClick={openPlaylistModal} className="like-btn">
+          <Plus size={20} stroke="white" />
         </button>
         <span className="track-duration">
           {currentTrack.duration
@@ -147,6 +171,48 @@ export default function Player({ currentTrack, onNext, onPrev, user }) {
       </div>
 
       <audio ref={audioRef} src={audioSrc} autoPlay />
+
+      {/* Modal pour connexion */}
+      {showLoginModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <button className="modal-close" onClick={() => setShowLoginModal(false)}>
+              <X size={18} />
+            </button>
+            <p>Vous devez vous connecter pour liker cette musique.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Modal pour ajouter aux playlists */}
+      {showPlaylistModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <button className="modal-close" onClick={() => setShowPlaylistModal(false)}>
+              <X size={18} />
+            </button>
+            <h3>Ajouter à des playlists</h3>
+            <div className="playlist-selection flex flex-col gap-2 mt-2">
+              {playlists.map(p => (
+                <label key={p._id} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedPlaylists.includes(p._id)}
+                    onChange={() => togglePlaylistSelection(p._id)}
+                  />
+                  {p.name}
+                </label>
+              ))}
+            </div>
+            <button
+              onClick={savePlaylists}
+              className="bg-green-600 hover:bg-green-700 py-2 px-4 mt-3 rounded"
+            >
+              Sauvegarder
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
