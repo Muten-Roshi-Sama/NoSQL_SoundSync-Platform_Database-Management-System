@@ -5,18 +5,18 @@ import Home from "../pages/Home";
 import Login from "../pages/accounts/Login";
 import Register from "../pages/accounts/Inscription";
 import Songs from "../pages/showcase/Songs";
+import Artists from "../pages/showcase/Artists";
 
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Routes publiques */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/Songs" element={<Songs />} />
-      {/* Routes protégées (nécessitent connexion) */}
+      
       <Route element={<Layout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />  
         <Route path="/" element={<Home />} />
-        
+        <Route path="/Songs" element={<Songs />} />
+        <Route path="/Artists" element={<Artists />} />
         <Route path="/player/:id" element={<Player />} />
       </Route>
     </Routes>

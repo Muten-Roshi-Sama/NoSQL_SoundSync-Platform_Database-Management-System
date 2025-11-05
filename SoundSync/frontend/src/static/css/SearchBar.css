@@ -1,0 +1,60 @@
+/* ================================
+   SearchBar.css
+   Style commun pour toutes les pages
+================================ */
+
+.searchbar-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 12px 16px;
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Champ de recherche */
+.searchbar-container input[type="text"] {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.searchbar-container input[type="text"]:focus {
+  outline: none;
+  background-color: #333;
+  box-shadow: 0 0 0 2px #4f46e5; /* Indigo accent */
+}
+
+/* Dropdowns */
+.searchbar-container select {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.searchbar-container select:hover {
+  background-color: #333;
+}
+
+/* Loading text */
+.searchbar-container p {
+  color: #aaa;
+  font-size: 14px;
+  margin-left: 8px;
+}

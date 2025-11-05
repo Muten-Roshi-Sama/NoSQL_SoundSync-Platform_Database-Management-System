@@ -1,95 +1,90 @@
+// src/components/SearchBar.jsx
 import { useState, useEffect } from "react";
-// import { searchTracks } from "../services/api";
 import { getAll, getFieldFromAll } from "../services/api";
+import "../static/css/SearchBar.css";
 
-// ----------------------------------------------------------------------
-// Core Features to Implement
+/**
+ * UNIVERSAL SEARCHBAR
+ *
+ * @param {string} collection - MongoDB collection name ("tracks", "artists", ...)
+ * @param {function} onResults - callback called with results array
+ * @param {object} options - optional config: { searchFields, filterFields, limit }
+ */
+export default function SearchBar({
+  collection = "tracks",
+  onResults,
+  options = {},
+}) {
+  const {
+    searchFields = ["title", "artist"],
+    filterFields = [], // e.g. [{ name: "genre", label: "Genre" }]
+    limit = 20,
+  } = options;
 
-// 1. Text Search (title/artist)
-// Input field with debounced search
-// Builds MongoDB $regex filter
-
-// 2. Genre Filter
-// Dropdown to select genre (Rock, Jazz, Pop, etc.)
-// Adds to filter: { genre: "Jazz" }
-
-// 3. Sorting
-// Dropdown to choose sort field (title, artist, popularity, release_date)
-// Toggle between ascending/descending
-// Builds sort array: [["title", 1]] or [["popularity", -1]]
-
-// 4. Limit Control
-// Dropdown to choose results per page (10, 20, 50)
-// Updates the limit parameter
-
-// 5. Pagination
-// Previous/Next buttons
-// Page number display
-// Manages skip parameter (skip = page * limit)
-
-// 6. Results Display
-// Show total count
-// Show current range (e.g., "Showing 1-20 of 150")
-
-
-
-export default function SearchBar({ onResults }) {
   const [query, setQuery] = useState("");
-  const [genre, setGenre] = useState("");
-  const [genreOptions, setGenreOptions] = useState([]);
+  const [filters, setFilters] = useState({});
+  const [filterOptions, setFilterOptions] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  // Load genres list to populate picker.
+  // ===== Load filter options dynamically (for dropdowns) =====
   useEffect(() => {
     (async () => {
-      try {
-        const values = await getFieldFromAll("tracks", "genre");
-        setGenreOptions(values || []);
-      } catch (e) {
-        console.error("Failed to load genres:", e);
-        setGenreOptions([]);
+      const opts = {};
+      for (const field of filterFields) {
+        try {
+          const values = await getFieldFromAll(collection, field.name);
+          opts[field.name] = values || [];
+        } catch (e) {
+          console.warn(`Failed to load filter values for ${field.name}:`, e);
+        }
       }
+      setFilterOptions(opts);
     })();
-  }, []);
+  }, [collection, JSON.stringify(filterFields)]);
 
+  // ===== Build MongoDB filter =====
+  const buildFilter = () => {
+    const parts = [];
 
-  // Construct Search Filter
+    // 🔍 Text search
+    if (query && searchFields.length > 0) {
+      const orConditions = searchFields.map((f) => ({
+        [f]: { $regex: query, $options: "i" },
+      }));
+      parts.push({ $or: orConditions });
+    }
+
+    // 🎚 Dropdown filters
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) parts.push({ [key]: value });
+    }
+
+    if (parts.length === 0) return null;
+    if (parts.length === 1) return parts[0];
+    return { $and: parts };
+  };
+
+  // ===== Fetch documents (debounced) =====
   useEffect(() => {
-    const fetchTracks = async () => {
-      const parts = [];
-
-      // 1. Text search (case-insensitive => Build regex filter)
-      if (query) {
-        parts.push({
-          "$or": [
-            { "title": { "$regex": query, "$options": "i" } },
-            { "artist": { "$regex": query, "$options": "i" } }
-          ]
-        });
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const filter = buildFilter();
+        const result = await getAll(collection, { filter, limit });
+        onResults(result.items || []);
+      } catch (error) {
+        console.error("SearchBar fetch error:", error);
+      } finally {
+        setLoading(false);
       }
-      
-      // 2. Genre Filter
-      if (genre) { parts.push({ "genre": genre }); }
-      const filter =
-        parts.length === 0 ? null : parts.length === 1 ? parts[0] : { "$and": parts };
-
-      // 3. Sorting
-
-      // 4. Limit Control
-      // 5. Pagination
-
-      // ====== CRUD =======
-      const result = await getAll('tracks', { filter, limit: 20 });
-      
-      // Extract items array and pass to parent
-      onResults(result.items || []);
     };
 
-    const delayDebounce = setTimeout(fetchTracks, 300);
-    return () => clearTimeout(delayDebounce);
-  }, [query, genre, onResults]);
+    const delay = setTimeout(fetchData, 300);
+    return () => clearTimeout(delay);
+  }, [query, JSON.stringify(filters), collection, limit]);
 
   return (
-    <div className="mt-4 flex gap-3 items-center">
+    <div className="searchbar-container mt-4 flex flex-wrap gap-3 items-center">
       <input
         type="text"
         placeholder="Rechercher..."
@@ -98,149 +93,27 @@ export default function SearchBar({ onResults }) {
         className="flex-1 p-2 rounded bg-neutral-800 text-white"
       />
 
-      <select
-        value={genre}
-        onChange={(e) => setGenre(e.target.value)}
-        className="p-2 rounded bg-neutral-800 text-white"
-        title="Filtrer par genre"
-      >
-        <option value="">Tous genres</option>
-        {genreOptions.map((g) => (
-          <option key={g} value={g}>{g}</option>
-        ))}
-      </select>
-      
+      {/* Dynamic filter dropdowns */}
+      {filterFields.map((f) => (
+        <select
+          key={f.name}
+          value={filters[f.name] || ""}
+          onChange={(e) =>
+            setFilters((prev) => ({ ...prev, [f.name]: e.target.value }))
+          }
+          className="p-2 rounded bg-neutral-800 text-white"
+          title={`Filtrer par ${f.label}`}
+        >
+          <option value="">{`Tous ${f.label.toLowerCase()}s`}</option>
+          {(filterOptions[f.name] || []).map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      ))}
 
+      {loading && <p className="text-gray-400 text-sm">Chargement...</p>}
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// export default function SearchBar({ onResults }) {
-//   const [query, setQuery] = useState("");
-
-//   useEffect(() => {
-//     const fetchTracks = async () => {
-//       const results = await searchTracks(query);
-//       onResults(results);
-//     };
-
-//     const delayDebounce = setTimeout(fetchTracks, 300); // debounce 300ms
-//     return () => clearTimeout(delayDebounce);
-//   }, [query, onResults]);
-
-//   return (
-//     <div className="mt-4">
-//       <input
-//         type="text"
-//         placeholder="Rechercher un titre..."
-//         value={query}
-//         onChange={(e) => setQuery(e.target.value)}
-//         className="w-full p-2 rounded bg-neutral-800 text-white"
-//       />
-//     </div>
-//   );
-// }
-
-
-
-
-
-// export default function search_bar({ onResults }) {
-//   const [query, setQuery] = useState("");           // text search
-//   const [genre, setGenre] = useState("");           // genre filter
-//   const [sortField, setSortField] = useState("");   // field to sort by
-//   const [sortOrder, setSortOrder] = useState(1);    // 1 = asc, -1 = desc
-//   const [limit, setLimit] = useState(20);           // results per page
-//   const [page, setPage] = useState(0);              // current page (0-indexed)
-//   const [total, setTotal] = useState(0);            // total results
-//   const [tracks, setTracks] = useState([]);         // current results
-//   const [loading, setLoading] = useState(false); 
-
-//   const buildFilter = () => {
-//     const filters = [];
-    
-//     // Text search (title OR artist)
-//     if (query) {
-//       filters.push({
-//         "$or": [
-//           { "title": { "$regex": query, "$options": "i" } },
-//           { "artist": { "$regex": query, "$options": "i" } }
-//         ]
-//       });
-//     }
-    
-//     // Genre filter
-//     if (genre) {
-//       filters.push({ "genre": genre });
-//     }
-    
-//     // Combine with $and if multiple filters
-//     if (filters.length === 0) return null;
-//     if (filters.length === 1) return filters[0];
-//     return { "$and": filters };
-//   };
-
-//   const buildSort = () => {
-//     if (!sortField) return null;
-//     return [[sortField, sortOrder]];
-//   };
-
-
-//     useEffect(() => {
-//       const fetchTracks = async () => {
-//         setLoading(true);
-//         try {
-//           const filter = buildFilter();
-//           const sort = buildSort();
-//           const skip = page * limit;
-          
-//           const result = await getAll('tracks', { filter, sort, skip, limit });
-          
-//           setTracks(result.items || []);
-//           setTotal(result.total || 0);
-//         } catch (error) {
-//           console.error("Error fetching tracks:", error);
-//         } finally {
-//           setLoading(false);
-//         }
-//     };
-    
-//     // Debounce text search
-//     const timer = setTimeout(fetchTracks, 300);
-//     return () => clearTimeout(timer);
-    
-//   }, [query, genre, sortField, sortOrder, page, limit]);
-
-
-
-//   // Debounce text search
-//   const timer = setTimeout(fetchTracks, 300);
-//   return () => clearTimeout(timer);
-
-
-
-
-// }
-
-

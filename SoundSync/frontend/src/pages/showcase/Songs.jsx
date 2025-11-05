@@ -30,7 +30,15 @@ export default function Songs() {
   return (
     <div className="songs-page">
       <h1 className="songs-title">Découvre de nouveaux sons 🔥</h1>
-      <SearchBar onResults={setTracks} />
+      <SearchBar
+        collection="tracks"
+        onResults={setTracks}
+        options={{
+          searchFields: ["title", "artist"],
+          filterFields: [{ name: "genre", label: "Genre" }],
+          limit: 20,
+        }}
+      />
 
       <div className="tracks-grid">
         {tracks.map((track, index) => (
