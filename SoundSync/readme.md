@@ -189,6 +189,16 @@ docker compose logs -f backend
 docker compose logs -f frontend
 ```
 
+## DB manipulations :
+
+To reset the database with the mock data: 
+```
+>>> curl.exe -X POST http://localhost:8000/api/clean_db
+>>> curl.exe -X POST http://localhost:8000/api/init_db
+```
+
+
+
 ---
 ## Pytests (CRUD):
 

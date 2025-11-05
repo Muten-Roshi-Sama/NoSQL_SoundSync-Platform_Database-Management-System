@@ -1,43 +1,57 @@
 [
   {
     "_id": "artist1",
-    "name": "t+pazolite",
+    "username": "t+pazolite",
+    "email": "tpazolite@artists.com",
+    "password": "123456",
     "genre": "Electronic",
     "biography": "t+pazolite est un producteur japonais reconnu pour ses morceaux de hardcore et de speedcore aux rythmes frénétiques et mélodies accrocheuses."
   },
   {
     "_id": "artist2",
-    "name": "Ironheart",
+    "username": "Ironheart",
+    "email": "ironheart@artists.com",
+    "password": "123456",
     "genre": "Rock",
     "biography": "Ironheart est un groupe de rock alternatif qui mélange guitares puissantes et mélodies épiques, créant un son à la fois énergique et émotionnel."
   },
   {
     "_id": "artist3",
-    "name": "Dysmn",
+    "username": "Dysmn",
+    "email": "dysmn@artists.com",
+    "password": "123456",
     "genre": "Experimental",
     "biography": "Dysmn explore les frontières de la musique expérimentale en combinant sons électroniques et textures sonores uniques pour créer des paysages auditifs intrigants."
   },
   {
     "_id": "artist4",
-    "name": "Boris & Moris",
+    "username": "Boris & Moris",
+    "email": "boris.moris@artists.com",
+    "password": "123456",
     "genre": "Chanson Française",
     "biography": "Boris & Moris revisitent la chanson française classique avec des arrangements modernes, alliant poésie et rythmes entraînants."
   },
   {
     "_id": "artist5",
-    "name": "BlackY",
+    "username": "BlackY",
+    "email": "blacky@artists.com",
+    "password": "123456",
     "genre": "Electronic",
     "biography": "BlackY est un producteur électronique qui crée des morceaux sombres et immersifs, mélangeant basses puissantes et atmosphères planantes."
   },
   {
     "_id": "artist6",
-    "name": "Onoken",
+    "username": "Onoken",
+    "email": "onoken@artists.com",
+    "password": "123456",
     "genre": "Video Game",
     "biography": "Onoken est connu pour ses compositions inspirées de l'univers des jeux vidéo, avec des mélodies épiques et des rythmes dynamiques qui transportent l'auditeur."
   },
   {
     "_id": "artist7",
-    "name": "Camellia",
+    "username": "Camellia",
+    "email": "camellia@artists.com",
+    "password": "123456",
     "genre": "Electronic",
     "biography": "Camellia est un producteur japonais de musique électronique et de hardcore qui combine virtuosité technique et créativité pour des morceaux électrisants."
   }

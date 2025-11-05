@@ -6,6 +6,7 @@ import Login from "../pages/accounts/Login";
 import Register from "../pages/accounts/Inscription";
 import Songs from "../pages/showcase/Songs";
 import Artists from "../pages/showcase/Artists";
+import AccountOverview from "../pages/accounts/accountOverview";
 
 export default function AppRoutes() {
   return (
@@ -18,6 +19,7 @@ export default function AppRoutes() {
         <Route path="/Songs" element={<Songs />} />
         <Route path="/Artists" element={<Artists />} />
         <Route path="/player/:id" element={<Player />} />
+        <Route path="/accountOverview" element={<AccountOverview />} />
       </Route>
 
 

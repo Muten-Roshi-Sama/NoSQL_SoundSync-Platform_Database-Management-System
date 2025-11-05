@@ -38,7 +38,7 @@ export default function Navbar() {
       <div className="navbar-right">
         {user ? (
           <>
-            <span className="navbar-user">👤 {user.username}</span>
+            <Link to="/accountOverview" className="navbar-user">👤 {user.username}</Link>
             <button onClick={logout} className="navbar-btn logout">
               Déconnexion
             </button>

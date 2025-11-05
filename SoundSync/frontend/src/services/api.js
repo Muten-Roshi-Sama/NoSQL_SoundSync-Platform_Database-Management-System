@@ -18,13 +18,7 @@
 const API_BASE = "http://127.0.0.1:8000";
 
 
-
-
-
-
-
 // ======= General CRUD Functions =======
-
 // ---------- GET ----------
 export async function getAll(collection, { filter, sort, projection, skip = 0, limit = 50 } = {}) {
   const params = [];
@@ -45,7 +39,7 @@ export async function getByField(collection, field, value, { projection, skip = 
   if (skip) params.push(`skip=${skip}`);
   if (limit) params.push(`limit=${limit}`);
   //
-  const url = `${API_BASE}/crud/${collection}/by/${field}/${value}?${params.join('&')}`;
+  const url = `${API_BASE}/crud/${encodeURIComponent(collection)}/by/${encodeURIComponent(field)}/${encodeURIComponent(value)}?${params.join('&')}`;
   const res = await fetch(url);
   return await res.json(); // { document } or { items, total, ... }
 }
@@ -129,42 +123,37 @@ export async function listCollectionNames() {
 
 
 // ========== Implementations ==========
-
+// Always-200 finder: tries fields in order and returns first match or null
+async function findOneSilent(collection, identifier, fields) {
+  for (const field of fields) {
+    const res = await getAll(collection, { filter: { [field]: identifier }, limit: 1 });
+    const item = res?.items?.[0];
+    if (item) return item;
+  }
+  return null;
+}
 export async function loginUser(identifier, password) {
-  const collections = ['users', 'artists'];
-  const fields = ['username', 'email'];
-  
-  let user = null;
+  const emailFirst = identifier.includes('@');
+  const usersFields   = emailFirst ? ['email', 'username'] : ['username', 'email'];
+  const artistsFields = emailFirst ? ['email', 'username'] : ['username', 'email'];
 
-  // 1️⃣ Try each collection and each field until we find a match
-  for (const collection of collections) {
-    for (const field of fields) {
-      try {
-        const res = await fetch(`${API_BASE}/crud/${collection}/by/${field}/${identifier}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.document) {
-            user = data.document;
-            break; // Found user, exit inner loop
-          }
-        }
-      } catch (error) {
-        // Continue to next field/collection
-        print(error)
-        continue;
-      }
+  // 1) Try users
+  let doc = await findOneSilent('users', identifier, usersFields);
+  if (!doc) {
+    // 2) Try artists
+    doc = await findOneSilent('artists', identifier, artistsFields);
+    if (doc) {
+      doc = { ...doc, collection: 'artists', role: 'artist' };
     }
-    if (user) break; // Found user, exit outer loop
+  } else {
+    doc = { ...doc, collection: 'users', role: 'user' };
   }
 
-  // 2️⃣ Check if user was found
-  if (!user) throw new Error("Utilisateur introuvable");
-
-  // 3️⃣ Verify password
-  if (user.password !== password) throw new Error("Mot de passe incorrect");
-
-  return user;
+  if (!doc) throw new Error("Utilisateur introuvable");
+  if (doc.password !== password) throw new Error("Mot de passe incorrect");
+  return doc;
 }
+
 
 
 export async function registerUser(formData) {

@@ -135,8 +135,14 @@ def get_one_by_field(collection_name: str, field: str, value: Any) -> Optional[D
     Fetch a single document by any field and value.
     """
     coll = MC[collection_name]
+    if field == "_id":
+        try:
+            value = ObjectId(value)
+        except Exception:
+            return None
     doc = coll.find_one({field: value})
     return _to_str_id(doc) if doc else None
+
 def count_documents(
     collection_name: str, 
     filter: Optional[Dict[str, Any]] = None
