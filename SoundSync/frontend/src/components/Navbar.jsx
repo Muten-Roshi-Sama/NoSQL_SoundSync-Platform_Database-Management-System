@@ -15,12 +15,21 @@ export default function Navbar() {
         </Link>
 
         <div className="navbar-links">
+
+
+        <Link to="/songs" className={location.pathname === "/songs" ? "active" : ""}>
+            Songs
+        </Link>
+
+
           <Link
             to="/artists"
             className={location.pathname === "/artists" ? "active" : ""}
           >
             Artists
           </Link>
+
+
           <Link
             to="/favorites"
             className={location.pathname === "/favorites" ? "active" : ""}
