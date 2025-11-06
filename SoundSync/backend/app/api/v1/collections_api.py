@@ -63,10 +63,14 @@ def get_field_from_all(collection: str, field: str):
 @router.put("/{collection_name}/by/{id}")
 def update_instance(collection_name : str, id: str, updates: dict):
     """Update a document by ID."""
-    modified = crud.update_one(collection_name, id, updates)
-    if not modified:
-        raise HTTPException(status_code=404, detail=f"Document from {collection_name} not found or not modified")
-    return {"modified": modified, "message": f"Document {id} from {collection_name} updated"}
+    result = crud.update_one(collection_name, id, updates)
+    
+    # Check if document was found (not necessarily modified)
+    if result == -1:  # Special return value for "not found"
+        raise HTTPException(status_code=404, detail=f"Document from {collection_name} not found")
+    
+    return {"modified": result, "message": f"Document {id} from {collection_name} updated"}
+
 
 @router.delete("/{collection_name}/by/{id}")
 def delete_instance(collection_name : str, id: str):

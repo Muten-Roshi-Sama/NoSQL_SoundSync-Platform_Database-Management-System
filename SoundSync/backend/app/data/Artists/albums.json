@@ -4,6 +4,7 @@
     "title": "Smooth Jazz Nights",
     "artist_id": "artist1",
     "release_year": 2022,
+    "description": "...",
     "tracks": ["track1", "track2"]
   },
   {
@@ -11,6 +12,7 @@
     "title": "Neon Lights",
     "artist_id": "artist2",
     "release_year": 2023,
+    "description": "...",
     "tracks": ["track3"]
   }
 ]

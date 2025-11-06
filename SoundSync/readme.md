@@ -218,18 +218,18 @@ Cela confirme que le **frontend communique bien avec le backend**.
 ### Arrêter les conteneurs :
 
 ```bash
-docker compose down
+docker compose down   # dans le dossier avec docker-compose.yml
 ```
 
 ### Rebuild complet :
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
 ## DB manipulations :
 
-To reset the database with the mock data: 
+Vu que les POST ne sont pas autorisé en navigateur, pour réinitialiser la base de données, il faut utiliser la borne de commandes : 
 ```
 >>> curl.exe -X POST http://localhost:8000/api/clean_db
 >>> curl.exe -X POST http://localhost:8000/api/init_db
@@ -280,4 +280,4 @@ pytest tests/test_collections_api.py --cov=app -v -s
 
 ---
 
-🖋️ **Auteur :** Valatras
+🖋️ **Auteurs :** Valatras, Muten-Roshi-Sama

@@ -8,9 +8,17 @@ import Songs from "../pages/showcase/Songs";
 import Artists from "../pages/showcase/Artists";
 import Favorites from "../pages/showcase/Favorites";
 import Playlists from "../pages/showcase/Playlists";
+
+// Accounts
 import AccountOverview from "../pages/accounts/accountOverview";
 import AccountEdit from "../pages/accounts/accountEdit";
 
+// Artists Only
+import AddAlbums from "../pages/artists/addAlbums";
+import AlbumsManage from "../pages/artists/albumsManage";
+
+
+// =============================================================================
 export default function AppRoutes() {
   return (
     <Routes>
@@ -26,6 +34,13 @@ export default function AppRoutes() {
         <Route path="/player/:id" element={<Player />} />
         <Route path="/account" element={<AccountOverview />} />
         <Route path="/account/edit" element={<AccountEdit />} />
+
+        {/* Artists only */}
+        <Route path="/artists/albums/add" element={<AddAlbums />} />
+        <Route path="/artists/albums/manage" element={<AlbumsManage />} />
+        {/* <Route path="/artist/concerts/manage" element={< />} /> */}
+
+
       </Route>
 
 

@@ -84,8 +84,12 @@ def _to_str_id(doc: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
 
 def _id_query(id_or_key: str) -> Dict[str, Any]:
     """Accepts either a 24-char ObjectId or a string key (like 'user1')."""
-    return {"_id": ObjectId(id_or_key)} if ObjectId.is_valid(id_or_key) else {"_id": id_or_key}
-
+    if ObjectId.is_valid(id_or_key):
+        try:
+            return {"_id": ObjectId(id_or_key)}
+        except Exception:
+            pass
+    return {"_id": id_or_key}
 
 
 # ===================== CRUD Methods ================
@@ -122,8 +126,12 @@ def get_all(
 
     cursor = coll.find(q, projection)
     if sort:
-        # Support single tuple or list of tuples
-        cursor = cursor.sort(sort if isinstance(sort, list) else [sort])
+        # Convert dict to list of tuples if needed: {"field": -1} -> [("field", -1)]
+        if isinstance(sort, dict):
+            sort = list(sort.items())
+        elif not isinstance(sort, list):
+            sort = [sort]  # Single tuple to list
+        cursor = cursor.sort(sort)
     cursor = cursor.skip(s).limit(l)
 
     items = [_to_str_id(doc) for doc in cursor]
@@ -170,12 +178,29 @@ def get_field_from_all(collection: str, field: str):
 
 # ------- Update / Delete --------
 def update_one(collection_name: str, id_or_key: str, updates: Dict[str, Any]) -> int:
-    """
-    Update fields of one document; returns modified_count.
-    """
     coll = MC[collection_name]
-    res = coll.update_one(_id_query(id_or_key), {"$set": updates})
-    return res.modified_count
+    
+    # Try ObjectId first
+    query = _id_query(id_or_key)
+    res = coll.update_one(query, {"$set": updates})
+    
+    # If document was found, return modified_count (even if 0)
+    if res.matched_count > 0:
+        return res.modified_count
+    
+    # If not found and looks like ObjectId, try as string
+    if ObjectId.is_valid(id_or_key):
+        query = {"_id": id_or_key}
+        res = coll.update_one(query, {"$set": updates})
+        if res.matched_count > 0:
+            return res.modified_count
+    
+    # Not found at all
+    return -1  # Signal "not found"
+
+
+
+
 def delete_one(collection_name: str, id_or_key: str) -> int:
     """
     Delete one document; returns deleted_count.

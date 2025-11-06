@@ -5,6 +5,7 @@ import "../static/css/Navbar.css"; // chemin vers ton fichier CSS
 export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
+  // const navigate = useNavigate();
 
   return (
     <nav className="navbar">
@@ -32,6 +33,18 @@ export default function Navbar() {
           >
             Playlists
           </Link>
+
+          {user?.role === "artist" && (
+            <Link
+              to="/artists/albums/manage"
+              className={location.pathname.startsWith("artists/albums") ? "active" : ""}
+            >
+              Mes Albums
+              </Link>
+          )}
+
+
+
         </div>
       </div>
 
