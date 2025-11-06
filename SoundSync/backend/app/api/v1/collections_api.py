@@ -42,9 +42,11 @@ def get_all(
     cached = cache.get_cache(cache_key)
     if cached:
         return cached
-
-
     result = crud.get_all(collection_name, filter=filter_val, skip=skip, limit=limit, sort=sort_val, projection=projection_val)
+
+    # Set cache
+    cache.set_cache(cache_key, {"results": result}, ttl=1800)
+
     return result
 
 @router.get("/{collection_name}/by/{field}/{value}")
@@ -60,6 +62,10 @@ def get_instance(collection_name : str, field:str, value: str):
     document = crud.get_one_by_field(collection_name, field, value)
     if not document:
         raise HTTPException(status_code=404, detail=f"Document from {collection_name} not found")
+    
+    # Set cache
+    cache.set_cache(cache_key, {"document": document}, ttl=1800)
+    
     return {"document": document}
 
 @router.get("/{collection_name}/count")
@@ -80,10 +86,22 @@ def get_field_from_all(collection: str, field: str):
     """
     Return all distinct values for a given field in the specified collection.
     """
+    cache_key = f"{collection}:field_values:{field}"
+
+    # get cache
+    cached = cache.get_cache(cache_key)
+    if cached:
+        return cached
+
     values = crud.get_field_from_all(collection, field)
     if values is None:
         raise HTTPException(status_code=404, detail=f"Collection '{collection}' not found")
+
+    # set cache
+    cache.set_cache(cache_key, {"collection": collection, "field": field, "count": len(values), "values": values}, ttl=1800)
+
     return {"collection": collection, "field": field, "count": len(values), "values": values}
+
 
 
 
