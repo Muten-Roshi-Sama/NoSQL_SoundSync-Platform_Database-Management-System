@@ -109,6 +109,53 @@ export async function deleteDocumentByFilter(collection, filter) {
 }
 
 
+// ---------- File Uploads -------
+export async function uploadFile(file) {
+  const form = new FormData();
+  form.append("file", file);
+
+  const url = `${API_BASE}/upload/audio`;
+  const res = await fetch(url, {
+    method: "POST",
+    body: form,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Upload failed (${res.status}): ${text}`);
+  }
+  return await res.json(); // { url: "/static/audio/<filename>", filename: "..." }
+}
+
+export function extractAudioFilenameFromUrl(url) {
+  try {
+    // Handles absolute (http://.../static/audio/x.mp3) and relative (/static/audio/x.mp3)
+    const u = url.startsWith("http") ? new URL(url) : new URL(url, API_BASE);
+    const name = u.pathname.split("/").pop();
+    return name || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteAudioByFilename(filename) {
+  const url = `${API_BASE}/upload/audio/delete/${encodeURIComponent(filename)}`;
+  const res = await fetch(url, { method: "DELETE" });
+  if (!res.ok) throw new Error(`Delete failed (${res.status})`);
+  return await res.json(); // { deleted, filename }
+}
+
+export async function deleteAudioByUrl(url) {
+  const name = extractAudioFilenameFromUrl(url);
+  if (!name) throw new Error("Invalid audio URL");
+  return await deleteAudioByFilename(name);
+}
+
+
+
+
+
+
 // ------------ Meta -------------
 export async function listCollectionNames() {
   const url = `${API_BASE}/crud/meta/list_collection_names`;

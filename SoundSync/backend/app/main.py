@@ -7,14 +7,10 @@ import os
 # import all routers
 from app.api.v1 import health_api as health
 from app.api.v1 import init_db_api as init_db
-# from app.api.v1 import users_api as users
 from app.api.v1 import collections_api as coll
-# from app.api.v1 import tracks_api as tracks
-# from app.api.v1 import artists_api as artists
-# from app.api.v1 import albums_api as albums
-# from app.api.v1 import playlists_api as playlists
-# from app.api.v1 import concerts_api as concerts
-# etc...
+
+# File uploads
+from app.api.v1 import uploads_api as uploads
 
 
 
@@ -73,6 +69,9 @@ def read_root():
 
 # CRUD - centralized
 app.include_router(coll.router,prefix="/crud" )
+
+# File Uploads
+app.include_router(uploads.router, prefix="", tags=["uploads"])
 
 # MISC
 app.include_router(health.router, prefix="/api", tags=["health"])

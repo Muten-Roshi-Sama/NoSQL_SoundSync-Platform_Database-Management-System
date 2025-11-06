@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getAll, updateDocument, createDocument, deleteDocument } from "../../services/api";
+import { getAll, updateDocument, createDocument, deleteDocument,uploadFile, deleteAudioByUrl } from "../../services/api";
 import "../../static/css/accountOverview.css";
 
 const verbose = true;
+const API_BASE = "http://127.0.0.1:8000";
 // ========== Route Constants ==========
 const ROUTES = {
     HOME: "/",
@@ -89,30 +90,37 @@ export default function AlbumsManage() {
     }
 
 
-    // Delete album and all its tracks
+        // Delete album and all its tracks (including audio files)
     const handleDeleteAlbum = async (albumId) => {
-        if (!confirm("Supprimer cet album et toutes ses pistes ?")) return;
-
+        if (!confirm("Supprimer cet album et toutes ses pistes (fichiers audio inclus) ?")) return;
+        
         try {
-        // Delete all tracks first
-        const albumTracks = tracks[albumId] || [];
-        for (const track of albumTracks) {
+            // Delete all tracks first
+            const albumTracks = tracks[albumId] || [];
+            for (const track of albumTracks) {
+            if (track.audio_url) {
+                try {
+                await deleteAudioByUrl(track.audio_url);
+                } catch (e) {
+                console.warn("Audio file delete failed for", track.title, e);
+                }
+            }
             await deleteDocument("tracks", track._id);
-        }
-
-        // Delete album
-        await deleteDocument("albums", albumId);
-
-        // Update UI
-        setAlbums((prev) => prev.filter((a) => a._id !== albumId));
-        setTracks((prev) => {
-            const newTracks = { ...prev };
-            delete newTracks[albumId];
-            return newTracks;
-        });
+            }
+        
+            // Delete album
+            await deleteDocument("albums", albumId);
+        
+            // Update UI
+            setAlbums((prev) => prev.filter((a) => a._id !== albumId));
+            setTracks((prev) => {
+            const next = { ...prev };
+            delete next[albumId];
+            return next;
+            });
         } catch (err) {
-        console.error(err);
-        alert("Erreur lors de la suppression");
+            console.error(err);
+            alert("Erreur lors de la suppression");
         }
     };
 
@@ -164,8 +172,26 @@ export default function AlbumsManage() {
         ]);
     };
 
-    // Remove track from editing (mark for deletion if existing)
-    const removeTrackFromEdit = (index) => {
+        // Remove track from editing; if it exists and has an audio file, offer to delete the file now
+    const removeTrackFromEdit = async (index) => {
+        const track = editingTracks[index];
+        
+        if (track?._id && track.audio_url) {
+            const ok = window.confirm(
+            "Supprimer également le fichier audio du serveur pour cette piste ? Cette action est DÉFINITIVE."
+            );
+            if (ok) {
+            try {
+                await deleteAudioByUrl(track.audio_url);
+                // Clear URL locally and in DB to avoid dangling link if edit is cancelled
+                updateTrackField(index, "audio_url", "");
+                await updateDocument("tracks", track._id, { audio_url: "" });
+            } catch (e) {
+                console.warn("Échec de suppression du fichier audio pour", track.title, e);
+            }
+            }
+        }
+        
         setEditingTracks((prev) => prev.filter((_, i) => i !== index));
     };
 
@@ -179,44 +205,63 @@ export default function AlbumsManage() {
         const currentTrackIds = (tracks[editingAlbum] || []).map((t) => t._id);
         const editedTrackIds = editingTracks.filter((t) => t._id).map((t) => t._id);
 
-        // Delete removed tracks
+        // Delete removed tracks (+ their audio files)
         for (const trackId of currentTrackIds) {
             if (!editedTrackIds.includes(trackId)) {
-            await deleteDocument("tracks", trackId);
+                const tr = (tracks[editingAlbum] || []).find((t) => t._id === trackId);
+                if (tr?.audio_url) {
+                try {
+                    await deleteAudioByUrl(tr.audio_url);
+                } catch (e) {
+                    console.warn("Audio file delete failed for", tr?.title, e);
+                }
+                }
+                await deleteDocument("tracks", trackId);
             }
         }
 
         // Update or create tracks
-        for (const track of editingTracks) {
+        for (const [idx, track] of editingTracks.entries()) {
             if (verbose) {
                 console.log("Processing track:", {
-                    _id: track._id,
-                    title: track.title,
-                    album_id: track.album_id,
-                    artist_id: track.artist_id
+                _id: track._id,
+                title: track.title,
+                album_id: track.album_id,
+                artist_id: track.artist_id,
                 });
             }
             
-            if (track._id) {
-                if (verbose) {
-                    console.log("Updating track with _id:", track._id, "Type:", typeof track._id);
+            // If a new file was selected, upload it first and set audio_url
+            let nextAudioUrl = (track.audio_url || "").trim();
+            if (track.audio_file) {
+                try {
+                const up = await uploadFile(track.audio_file);
+                nextAudioUrl = `${API_BASE}${up.url}`; // or just up.url if your app serves from the same host
+                } catch (e) {
+                console.error("Upload failed for", track.title, e);
+                alert(`Échec d'upload pour "${track.title}". Piste mise à jour sans nouveau fichier.`);
                 }
+            }
+            
+            if (track._id) {
                 // Update existing track
                 await updateDocument("tracks", track._id, {
-                    title: track.title,
-                    duration: parseInt(track.duration, 10),
-                    audio_url: track.audio_url,
-                    cover_url: track.cover_url,
+                title: track.title,
+                duration: parseInt(track.duration, 10),
+                audio_url: nextAudioUrl,
+                cover_url: track.cover_url,
                 });
+                // clear the local file after upload
+                updateTrackField(idx, "audio_file", null);
             } else {
                 // Create new track
                 await createDocument("tracks", {
-                    title: track.title,
-                    duration: parseInt(track.duration, 10) || 180,
-                    audio_url: track.audio_url || "",
-                    cover_url: track.cover_url || "",
-                    album_id: editingAlbum,
-                    artist_id: user._id,
+                title: track.title,
+                duration: parseInt(track.duration, 10) || 180,
+                audio_url: nextAudioUrl,
+                cover_url: track.cover_url || "",
+                album_id: editingAlbum,
+                artist_id: user._id,
                 });
             }
         }
@@ -402,15 +447,54 @@ export default function AlbumsManage() {
                                 onChange={(e) => updateTrackField(idx, "duration", e.target.value)}
                                 />
                             </div>
-
+                            
+                            {/* Add Audio file */}
                             <div className="info-item full-width">
-                                <label>URL Audio</label>
+                                <label>Fichier Audio (MP3)</label>
                                 <input
-                                type="url"
-                                value={track.audio_url}
-                                onChange={(e) => updateTrackField(idx, "audio_url", e.target.value)}
+                                    type="file"
+                                    accept=".mp3,audio/*"
+                                    onChange={(e) => updateTrackField(idx, "audio_file", e.target.files?.[0] || null)}
                                 />
-                            </div>
+                                {track.audio_url ? (
+                                    <div style={{ marginTop: 8 }}>
+                                    <audio controls src={track.audio_url} style={{ width: "100%" }} />
+                                    <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center" }}>
+                                        <span style={{ fontSize: 12, color: "#666" }}>{track.audio_url}</span>
+                                        <button
+                                        type="button"
+                                        className="btn-logout"
+                                        onClick={async () => {
+                                            if (!track.audio_url) return;
+                                            const ok = window.confirm(
+                                            "Supprimer ce fichier audio du serveur ? Cette action est DÉFINITIVE."
+                                            );
+                                            if (!ok) return;
+                                            try {
+                                            await deleteAudioByUrl(track.audio_url);
+                                            // Clear URL locally and on backend if track exists
+                                            updateTrackField(idx, "audio_url", "");
+                                            if (track._id) {
+                                                await updateDocument("tracks", track._id, { audio_url: "" });
+                                            }
+                                            alert("Fichier audio supprimé.");
+                                            } catch (err) {
+                                            console.error(err);
+                                            alert("Échec de la suppression du fichier audio.");
+                                            }
+                                        }}
+                                        style={{ fontSize: 12, padding: "4px 8px" }}
+                                        >
+                                        Supprimer le fichier audio
+                                        </button>
+                                    </div>
+                                    </div>
+                                ) : (
+                                    <small style={{ display: "block", marginTop: 6, color: "#666" }}>
+                                    Vous pouvez téléverser un MP3, ou laisser vide.
+                                    </small>
+                                )}
+                                </div>
 
                             <div className="info-item full-width">
                                 <label>URL Couverture</label>
