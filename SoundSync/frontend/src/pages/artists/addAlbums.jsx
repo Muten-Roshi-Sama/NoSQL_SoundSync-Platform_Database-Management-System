@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { createDocument } from "../../services/api";
+import { createDocument, uploadFile } from "../../services/api";
 import "../../static/css/accountOverview.css"; // reuse styling
 
 
@@ -32,7 +32,7 @@ export default function AddAlbums() {
     });
 
     const [tracks, setTracks] = useState([
-        { title: "", duration: 180, audio_url: "", cover_url: "" },
+        { title: "", duration: 180, audio_url: "", audio_file: null, cover_url: "" },
     ]);
 
     const [submitting, setSubmitting] = useState(false);
@@ -112,13 +112,29 @@ export default function AddAlbums() {
         // 2. Create all tracks with album_id reference
         const trackIds = [];
         for (const track of tracks) {
+            let audioUrl = (track.audio_url || "").trim();
+
+            // If user selected a file, upload it first
+            if (track.audio_file) {
+                try {
+                    const uploadRes = await uploadFile(track.audio_file);
+                    // uploadRes.url is like "/static/audio/abc123.mp3"
+                    // Build full URL (API_BASE is already imported from api.js)
+                    audioUrl = `http://127.0.0.1:8000${uploadRes.url}`;
+                } catch (uploadErr) {
+                    console.error("Upload failed for track", track.title, uploadErr);
+                    // If upload fails, we still create track but audio_url will be empty or fallback
+                    setError(`Upload failed for "${track.title}": ${uploadErr.message}. Track created without audio.`);
+                }
+            }
+
             const trackPayload = {
-            title: track.title.trim(),
-            artist_id: user._id,
-            album_id: albumId,
-            duration: parseInt(track.duration, 10) || 180,
-            audio_url: track.audio_url.trim() || "",
-            cover_url: track.cover_url.trim() || "",
+                title: track.title.trim(),
+                artist_id: user._id,
+                album_id: albumId,
+                duration: parseInt(track.duration, 10) || 180,
+                audio_url: audioUrl,  // ← now uses uploaded file URL or fallback
+                cover_url: track.cover_url.trim() || "",
             };
             const trackRes = await createDocument("tracks", trackPayload);
             trackIds.push(trackRes.id);
@@ -261,13 +277,15 @@ export default function AddAlbums() {
                     </div>
 
                     <div className="info-item full-width">
-                        <label>URL Audio</label>
+                        <label>Fichier Audio (MP3)</label>
                         <input
-                        type="url"
-                        value={track.audio_url}
-                        onChange={(e) => updateTrackField(idx, "audio_url", e.target.value)}
-                        placeholder="https://example.com/audio.mp3"
+                            type="file"
+                            accept=".mp3,audio/*"
+                            onChange={(e) => updateTrackField(idx, "audio_file", e.target.files?.[0] || null)}
                         />
+                        <small style={{ display: "block", marginTop: 6, color: "#666" }}>
+                            Vous pouvez aussi laisser "URL Audio" vide et uploader un MP3.
+                        </small>
                     </div>
 
                     <div className="info-item full-width">
