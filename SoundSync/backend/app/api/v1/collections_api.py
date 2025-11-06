@@ -40,12 +40,13 @@ def get_all(
     cache_key = f"{collection_name}:{json.dumps(filter_val, sort_keys=True)}:{skip}:{limit}:{sort_val}:{projection_val}"
 
     cached = cache.get_cache(cache_key)
+    #print(f"Cache retrieved for key {cache_key}: {cached}")
     if cached:
         return cached
     result = crud.get_all(collection_name, filter=filter_val, skip=skip, limit=limit, sort=sort_val, projection=projection_val)
 
     # Set cache
-    cache.set_cache(cache_key, {"results": result}, ttl=1800)
+    cache.set_cache(cache_key, result, ttl=1800)
 
     return result
 
