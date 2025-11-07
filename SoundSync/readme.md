@@ -16,51 +16,8 @@ Elle permet aux utilisateurs d’écouter des morceaux, créer des playlists, su
 
 ---
 
-## 📂 Structure du projet
 
-```
-
-soundsync/
-├─ backend/
-│  ├─ app/
-│  │  ├─ __init__.py
-│  │  ├─ main.py                 # uvicorn app.main:app
-│  │  ├─ core/
-│  │  │  ├─ settings.py          # pydantic Settings (env)
-│  │  │  └─ events.py            # startup/shutdown events (db connect)
-│  │  ├─ db/
-│  │  │  ├─ client.py            # PyMongo client management
-│  │  │  └─ indexes.py
-│  │  ├─ api/
-│  │  │  ├─ v1/
-│  │  │  │  ├─ __init__.py
-│  │  │  │  ├─ users.py
-│  │  │  │  ├─ tracks.py
-│  │  │  │  └─ playlists.py
-│  │  ├─ models/                 # Pydantic schemas (requests/responses)
-│  │  │  ├─ user.py
-│  │  │  ├─ track.py
-│  │  │  └─ playlist.py
-│  │  ├─ services/               # logique métier, accès DB → réutilisable
-│  │  │  ├─ user_service.py
-│  │  │  ├─ track_service.py
-│  │  │  └─ playlist_service.py
-│  │  ├─ utils/
-│  │  │  ├─ redis_cache.py       # helpers Redis (cache, counters)
-│  │  │  └─ auth.py              # JWT helpers, oauth utilities
-│  │  └─ tests/
-│  │     └─ ...
-│  ├─ Dockerfile
-│  └─ requirements.txt
-├─ frontend/
-│  └─ (app React stub / create-react-app or Vite)
-├─ docker-compose.yml
-└─ README.md
-
-```
----
-
-## 📂 Structure complète du backend
+## 📂 Structure complète du projet
 
 ```
 soundsync/
@@ -102,8 +59,6 @@ soundsync/
 │ │ │ └── init.py
 │ │ │
 │ │ ├── utils/
-│ │ │ ├── auth.py # Authentification / JWT
-│ │ │ └── redis_cache.py # Helpers pour Redis
 │ │ │
 │ │ ├── static/
 │ │ │ └── audio/ # Fichiers audio mock
@@ -201,9 +156,8 @@ Docker va :
 
 Une fois Docker lancé :
 
-* Va sur [http://localhost:3000](http://localhost:3000)
-* Tu devrais voir :
-
+* sur [http://localhost:3000](http://localhost:3000)
+* Vous devriez voir :
   ```
   Soundsync Frontend
   API Status: Welcome to the Soundsync API! DB connected.
@@ -269,15 +223,5 @@ pytest tests/test_collections_api.py --cov=app -v -s
 * Le **CORS** est activé dans FastAPI pour autoriser `http://localhost:3000`.
 * En production, cette configuration sera ajustée pour pointer vers le domaine final.
 
----
-
-## 🚧 Prochaines étapes
-
-* [ ] Définir le modèle utilisateur (User, Artist, Playlist, etc.)
-* [ ] Ajouter un système d’authentification (JWT)
-* [ ] Implémenter la gestion des fichiers audio (upload/stream)
-* [ ] Créer une interface utilisateur complète (Playlists, Player, etc.)
-
----
 
 🖋️ **Auteurs :** Valatras, Muten-Roshi-Sama
